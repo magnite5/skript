@@ -1,0 +1,54 @@
+# Change the following as you like
+options:
+    # Messages sent when PVP Protection is turned on / off respectively
+    m_toggleon: &ePVP Protection has been turned &aon. &e/togglepvp to disable it.
+    m_toggleoff: &ePVP Protection has been turned &coff. &e/togglepvp to re-enable it.
+
+    # Message sent when the victim of an attack has PVP Protection enabled
+    m_victimon: &c%victim% has PVP Disabled
+    # Message sent when the victim of an attack has PVP Protection enabled
+    m_attackeron: &eYou have PVP Protection on; /togglepvp to re-enable pvp.
+
+    # Time after exiting combat a player can enable PVP Protection (in seconds):
+    cooldown: 10
+    # Message sent when a player has fought too recently to enable PVP Protection
+    m_cooldown: &cYou are currently in combat
+
+# Ensures that every player has protection on or off
+on first join:
+    set {pvp.protection::%player's uuid%} to true
+    send "{@m_toggleon}" to player
+
+on join:
+    if {pvp.protection::%player's uuid%} is not set:
+        set {pvp.protection::%player's uuid%} to false
+
+# Actually blocks the damage
+on damage of player by player:
+    if {pvp.protection::%victim's uuid%} is true:
+        cancel event
+        send "{@m_victimon}" to attacker
+    
+    else if {pvp.protection::%attacker's uuid%} is true:
+        cancel event
+        send "{@m_attackeron}" to attacker
+
+    else:
+        set {pvp.engaged::%attackers's uuid%} to true
+        set {pvp.engaged::%victim's uuid%} to true
+        wait {@cooldown} seconds
+        set {pvp.engaged::%attackers's uuid%} to false
+        set {pvp.engaged::%victim's uuid%} to false
+
+
+# To turn protection on or off     
+command /protectiontoggle:
+    trigger:
+        if {pvp.engaged::%player's uuid%} is true:
+            send "{@m_cooldown}"
+        else if {pvp.protection::%player's uuid%} is true:
+            set {pvp.protection::%player's uuid%} to false
+            send "{@m_toggleoff}"
+        else:
+            set {pvp.protection::%player's uuid%} to true
+            send "{@m_toggleon}"
