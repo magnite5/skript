@@ -1,5 +1,5 @@
 function ranksGuiMain(p: player):
-	set {_gui} to chest inventory with 3 rows named "Ranks Menu"
+	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
 
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 11 of {_gui} to netherite sword named "&cKill &fRanks&r" with lore "&fAwarded to players with a certain amount of &cPlayer Kills&r"
@@ -11,7 +11,7 @@ function ranksGuiMain(p: player):
 	open {_gui} to {_p}
 
 function ranksGuiKills(p: player):
-	set {_gui} to chest inventory with 3 rows named "Kill Ranks"
+	set {_gui} to chest inventory with 3 rows named "§cKills Ranks"
 
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 10 of {_gui} to wooden sword named "&f1. &cMurderer&r" with lore "&fGiven to players with &c500 Kills&f."
@@ -24,7 +24,7 @@ function ranksGuiKills(p: player):
 	open {_gui} to {_p}
 
 function ranksGuiNetworth(p: player):
-	set {_gui} to chest inventory with 3 rows named "Networth Ranks"
+	set {_gui} to chest inventory with 3 rows named "§aNetworth Ranks"
 
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 11 of {_gui} to dried kelp named "&f1. &bAristocrat&r" with lore "&fGiven to players with &a250 000 Net Worth&f."
@@ -34,14 +34,20 @@ function ranksGuiNetworth(p: player):
 	open {_gui} to {_p}
 
 function ranksGuiAdmins(p: player):
-	set {_gui} to chest inventory with 3 rows named "Admin Ranks"
+	set {_gui} to chest inventory with 3 rows named "§eAdmin Ranks"
 
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
+	set slot 10 of {_gui} to hopper minecraft named "&5Trainee Mod&r" with lore "&fRecently appointed mod. Has been a player for 4+ weeks"
+	set slot 11 of {_gui} to command block minecart named "&bTrial Mod&r" with lore "&fHas been a player for 2+ months. Trustworthy"
+	set slot 12 of {_gui} to command block named "&aTrainee Mod&r"
+	set slot 14 of {_gui} to hopper minecraft named "&3Senior Mod&r" with lore "&fHas been a mod for 6 months. Highly trustworthy."
+	set slot 15 of {_gui} to hopper minecraft named "&1Head Mod&r" with lore "&fMost trusted mod. Handpicked by the owner"
+	set slot 15 of {_gui} to enchanted golden apple named "&cOwner&r" with lore "&fHas absolute power & authority."
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
 on inventory click:
-	if name of event-inventory is "Ranks Menu":
+	if name of event-inventory is "§eRanks Menu":
 		cancel event
 		event-inventory is not player's inventory
 		if clicked slot is 11:
@@ -51,13 +57,19 @@ on inventory click:
 		else if clicked slot is 15:
 			ranksGuiNetworth(player)
 
-	else if name of event-inventory is "Kill Ranks":
+	else if name of event-inventory is "§cKills Ranks":
 		cancel event
 		event-inventory is not player's inventory
 		if clicked slot is 26:
 			ranksGuiMain(player)
 
-	else if name of event-inventory is "Networth Ranks":
+	else if name of event-inventory is "§aNetworth Ranks":
+		cancel event
+		event-inventory is not player's inventory
+		if clicked slot is 26:
+			ranksGuiMain(player)
+
+	else if name of event-inventory is "§eAdmin Ranks":
 		cancel event
 		event-inventory is not player's inventory
 		if clicked slot is 26:
