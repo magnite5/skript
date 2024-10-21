@@ -1,5 +1,5 @@
 function openGUI(p: player):
-	set {_gui} to chest inventory with 5 rows named "GUI"
+	set {_gui} to chest inventory with 5 rows named "List of Ranks"
 
 	set slot (integers between 0 and 45) of {_gui} to light blue stained glass pane named " "
 	set slot 10 of {_gui} to wooden sword named "&f1. &cMurderer" with lore "&fGiven to players with &c500 Kills&f."                        # Almost def right
@@ -14,6 +14,6 @@ function openGUI(p: player):
 	open {_gui} to {_p}
 
 on inventory click:
-	name of event-inventory is "GUI"
+	name of event-inventory is "List of Ranks"
 	cancel event
 	event-inventory is not player's inventory
