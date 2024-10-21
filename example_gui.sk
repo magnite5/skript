@@ -1,0 +1,23 @@
+function examplegui(p: player, s: number):
+	set {_gui} to chest inventory with {_s} rows named "§cexample"
+	set slot 0 of {_gui} to red stained glass pane named "0"
+	loop 55 times:
+		set {_guiindex} to loop-number
+		set slot {_guiindex} of {_gui} to red stained glass pane named "%{_guiindex}%"
+	open {_gui} to {_p}
+
+on inventory click:
+	name of event-inventory is "§cexample"
+	set {_slot} to clicked slot
+	cancel event
+	event-inventory is not player's inventory
+	# send "hi" to player
+	send name of {_slot} to player
+
+command /examplegui <number>:
+	trigger:
+		set {_number} to arg-1
+		if {_number} is between 1 and 6:
+			examplegui(player, {_number})
+		else:
+			send "arg 1 must be a number between 1 and 6 (given: %{_number}%)" to player
