@@ -1,0 +1,19 @@
+function openGUI(p: player):
+	set {_gui} to chest inventory with 5 rows named "GUI"
+
+	set slot (integers between 0 and 45) of {_gui} to light blue stained glass pane named " "
+	set slot 10 of {_gui} to wooden sword named "&f1. &cMurderer" with lore "&fGiven to players with &c500 Kills&f."                        # Almost def right
+	set slot 11 of {_gui} to stone sword named "&f2. &4Genocidal Maniac" with lore "&fGiven to players with &c1000 Kills&f."                # Prob+ right
+	set slot 12 of {_gui} to golden sword named "&f3. &dSadistic" with lore "&fGiven to players with &c2500 Kills&f."                       # Almost def right
+	set slot 14 of {_gui} to iron sword named "&f4. &4Demon" with lore "&fGiven to players with &c5000 Kills&f."                            # Wrong Colour
+	set slot 15 of {_gui} to diamond sword named "&f5. &2Reaper" with lore "&fGiven to players with &c7500 Kills&f."                        # Wrong Colour
+	set slot 16 of {_gui} to netherite sword named "&f6. &cWarrior of the Blood God" with lore "&fGiven to players with &c10000 Kills&f."   # Wrong Colour
+	set slot 30 of {_gui} to dried kelp named "&f1. &3Aristocrat" with lore "&fGiven to players with &a250 000 Net Worth&f."                # Wrong Colour
+	set slot 31 of {_gui} to dried kelp block named "&f2. &bHuge Aristocrat" with lore "&fGiven to players with &a500 000 Net Worth&f."     # Prob right
+    set slot 32 of {_gui} to sea pickle named "&f3. &5Ultimate Aristocrat" with lore "&fGiven to players with &a1 000 000 Net Worth&f."     # Prob Right
+	open {_gui} to {_p}
+
+on inventory click:
+	name of event-inventory is "GUI"
+	cancel event
+	event-inventory is not player's inventory
