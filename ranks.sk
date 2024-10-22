@@ -12,7 +12,7 @@ function ranksGuiMain(p: player):
 
 function ranksGuiKills(p: player):
 	set {_gui} to chest inventory with 3 rows named "§cKills Ranks"
-
+	## SOME OF THESE COLOURS ARE PROBABLY RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 10 of {_gui} to wooden sword named "&f1. &cMurderer&r" with lore "&fGiven to players with &c500 Kills&f."
 	set slot 11 of {_gui} to stone sword named "&f2. &4Genocidal Maniac&r" with lore "&fGiven to players with &c1000 Kills&f."                # Probably the wrong colour
@@ -25,7 +25,7 @@ function ranksGuiKills(p: player):
 
 function ranksGuiNetworth(p: player):
 	set {_gui} to chest inventory with 3 rows named "§aNetworth Ranks"
-
+	## SOME OF THESE COLOURS ARE PROBABLY RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 11 of {_gui} to dried kelp named "&f1. &bAristocrat&r" with lore "&fGiven to players with &a250 000 Net Worth&f."
 	set slot 13 of {_gui} to dried kelp block named "&f2. &aHuge Aristocrat&r" with lore "&fGiven to players with &a500 000 Net Worth&f."
@@ -35,14 +35,14 @@ function ranksGuiNetworth(p: player):
 
 function ranksGuiAdmins(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eAdmin Ranks"
-
+	## IDK IF ANY OF THESE COLOURS ARE RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
-	set slot 10 of {_gui} to hopper minecraft named "&5Trainee Mod&r" with lore "&fRecently appointed mod. Has been a player for 4+ weeks"
-	set slot 11 of {_gui} to command block minecart named "&bTrial Mod&r" with lore "&fHas been a player for 2+ months. Trustworthy"
-	set slot 12 of {_gui} to command block named "&aTrainee Mod&r"
-	set slot 14 of {_gui} to hopper minecraft named "&3Senior Mod&r" with lore "&fHas been a mod for 6 months. Highly trustworthy."
-	set slot 15 of {_gui} to hopper minecraft named "&1Head Mod&r" with lore "&fMost trusted mod. Handpicked by the owner"
-	set slot 15 of {_gui} to enchanted golden apple named "&cOwner&r" with lore "&fHas absolute power & authority."
+	set slot 10 of {_gui} to hopper named "&5Trainee Mod&r" with lore "&fRecently appointed mod. Has been a player for 4+ weeks"
+	set slot 11 of {_gui} to structure block named "&bTrial Mod&r" with lore "&fHas been a player for 2+ months. Trustworthy"
+	set slot 12 of {_gui} to command block named "&aMod&r" with lore "&fHas been a trial mod for 2+ months. Very Trustworthy."
+	set slot 14 of {_gui} to chain command block named "&3Senior Mod&r" with lore "&fHas been a mod for 6 months. Highly Trustworthy."
+	set slot 15 of {_gui} to repeating command block named "&1Head Mod&r" with lore "&fMost trusted mod. Handpicked by the owner"
+	set slot 16 of {_gui} to enchanted golden apple named "&cOwner&r" with lore "&fHas absolute power & authority."
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
@@ -53,7 +53,7 @@ on inventory click:
 		if clicked slot is 11:
 			ranksGuiKills(player)
 		else if clicked slot is 13:
-			send "You clicked on slot 13"
+			ranksGuiAdmins(player)
 		else if clicked slot is 15:
 			ranksGuiNetworth(player)
 
