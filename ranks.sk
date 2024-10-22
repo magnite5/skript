@@ -4,7 +4,7 @@ function ranksGuiMain(p: player):
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
 	set slot 11 of {_gui} to netherite sword named "&cKill &fRanks&r" with lore "&fAwarded to players with a certain amount of &cPlayer Kills&r"
 	enchant slot 11 of {_gui} with sharpness 10
-	set slot 13 of {_gui} to command block named "&eStaff &fRanks&r" #with lore "123"
+	set slot 13 of {_gui} to command block named "&eStaff &fRanks&r" with lore "&fCurrently only obtainable through special invitation"
 	enchant slot 13 of {_gui} with mending 10
 	set slot 15 of {_gui} to dried kelp block named "&aNetworth &fRanks&r" with lore "&fAwarded to players with a certain amount of &aNetworth&f (Netherite Ingots)&r"
 	enchant slot 15 of {_gui} with fortune 10
