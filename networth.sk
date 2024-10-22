@@ -1,0 +1,17 @@
+command /networth:
+    #Calculates the player's networth, from the player's inventory as well as their ender chest
+    aliases: /networth, /nw, /worth
+    executable by: players
+    usage: "/nw"
+    description: "Calculates a player's networth"
+    permission: msd.command.nw 
+    permission message: "&r&fYou do not have permission to run this command."
+    trigger:
+        set {-nw::%player's uuid%} to 0
+        add (the amount of sea pickles in player's inventory) * 2048 to {-nw::%player's uuid%}
+        add (the amount of sea pickles in the player's ender chest) * 2048 to {-nw::%player's uuid%}
+        add (the amount of dried kelp blocks in the player's inventory) * 1028 to {-nw::%player's uuid%}
+        add (the amount of dried kelp blocks in the player's ender chest) * 1028 to {-nw::%player's uuid%}
+		add (the amount of dried kelp blocks enchanted with mending in the player's inventory) * 4096 to {-nw::%player's uuid%}
+		add (the amount of dried kelp blocks enchanted with mending in the player's ender chest) * 4096 to {-nw::%player's uuid%}
+        send "&eYour networth is &a&n{-nw::%player's uuid%}&r&a netherite ingots"
