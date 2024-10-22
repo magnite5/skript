@@ -12,6 +12,10 @@ command /networth:
         add (the amount of sea pickles in the player's ender chest) * 2048 to {-nw::%player's uuid%}
         add (the amount of dried kelp blocks in the player's inventory) * 1028 to {-nw::%player's uuid%}
         add (the amount of dried kelp blocks in the player's ender chest) * 1028 to {-nw::%player's uuid%}
-		add (the amount of dried kelp blocks enchanted with mending in the player's inventory) * 4096 to {-nw::%player's uuid%}
-		add (the amount of dried kelp blocks enchanted with mending in the player's ender chest) * 4096 to {-nw::%player's uuid%}
-        send "&eYour networth is &a&n{-nw::%player's uuid%}&r&a netherite ingots"
+        set {-nw::items::compkelp} to a dried kelp block
+        enchant {-nw::items::compkelp} with mending 10
+		# These are set to 3068 because the other 1028 gets added earlier
+        add (the amount of {-nw::items::compkelp} in the player's inventory) * 3068 to {-nw::%player's uuid%}
+        add (the amount of {-nw::items::compkelp} in the player's ender chest) * 3068 to {-nw::%player's uuid%}
+        send "&eYour networth is &a&n%{-nw::%player's uuid%}%&r§8 Netherite Ingots&e;"
+        send "&eThis value is based on the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest. It does not include anything stored within a shulker box."
