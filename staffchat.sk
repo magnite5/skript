@@ -7,11 +7,13 @@ command /staffchat [<text>]:
         if arg-1 is empty:
             send "&e[STAFF&6&lCHAT&r&6] &a&lEnabled Staff Chat" to player
             set {sc.%uuid of player%} to true
+			exit
         else if arg-1 is "off":
 			send "&e[STAFF&6&lCHAT&r&6] &a&lDisabled Staff Chat" to player
 			set {sc.%uuid of player%} to false
+			exit
         else:
-            send "&e[STAFF&6&lCHAT&r&6] &a&%player% &8>> &7%{msg}%" to all players where [input has permission "sk.sc"]
+            send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{msg}%" to all players where [input has permission "sk.sc"]
 on chat:
     if {sc.%uuid of player%} is true:
         send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{msg}%" to all players where [input has permission "sk.sc"]
