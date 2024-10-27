@@ -1,19 +1,21 @@
 command /staffchat [<text>]:
-    aliases: /sc
-    permission: sk.sc
-    permission message: "&c&lSorry but you do not have the correct permissions to do this command!"
-    trigger:
-        set {msg} to arg-1
-        if arg-1 is empty:
-            send "&e[STAFF&6&lCHAT&r&6] &a&lEnabled Staff Chat" to player
-            set {sc.%uuid of player%} to true
+	aliases: /sc
+	permission: sk.sc
+	permission message: "&c&lSorry but you do not have the correct permissions to do this command!"
+	trigger:
+		set {_msg} to arg-1
+		if arg-1 is "on":
+			send "&e[STAFF&6&lCHAT&r&6] &a&lEnabled Staff Chat" to player
+			set {sc.%uuid of player%} to true
 			exit
-        else if arg-1 is "off":
+		else if arg-1 is "off":
 			send "&e[STAFF&6&lCHAT&r&6] &a&lDisabled Staff Chat" to player
 			set {sc.%uuid of player%} to false
 			exit
-        else:
-            send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{msg}%" to all players where [input has permission "sk.sc"]
+		else:
+			send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{_msg}%" to all players where [input has permission "sk.sc"]
 on chat:
-    if {sc.%uuid of player%} is true:
-        send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{msg}%" to all players where [input has permission "sk.sc"]
+	if {sc.%uuid of player%} is true:
+		cancel event
+		set {_msg} to message
+		send "&e[STAFF&6&lCHAT&r&6] &a%player% &8>> &7%{_msg}%" to all players where [input has permission "sk.sc"]
