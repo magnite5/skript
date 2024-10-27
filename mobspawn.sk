@@ -1,17 +1,95 @@
 options:
-	l1: 5071 15 5057 	# The VantyXD Gravestone
-	l2: 5090 15 5058 	# the Aryrth Gravestone
-	l3:	5048 15 5078	# The Cr4fty73 Gravestone
-	l4: 5058 15 5094	# The CallMeCanadian Gravestone
-	l5: 5083 15 5093	# The Herobrine Gravestone
-	l6: 5090 15 5091	# The Coolguy76 Gravestone
+	l1: location at (5071, 15, 5057) in world "world"	# The VantyXD Gravestone
+	l2: location at (5090, 15, 5058) in world "world"	# the Aryrth Gravestone
+	l3:	location at (5048, 15, 5078) in world "world"	# The Cr4fty73 Gravestone
+	l4: location at (5058, 15, 5094) in world "world"	# The CallMeCanadian Gravestone
+	l5: location at (5083, 15, 5093) in world "world"	# The Herobrine Gravestone
+	l6: location at (5090, 15, 5091) in world "world"	# The Coolguy76 Gravestone
 
-function hw_summonZombie(l: position):
-	/summon zombie {_l} {CustomNameVisible:1b,PersistenceRequired:1b,CanBreakDoors:0b,Tags:["halloween","gravemobs"],CustomName:'{"text":"Grave Zombie","color":"red","underlined":true}',ArmorItems:[{id:"minecraft:netherite_boots",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_leggings",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_chestplate",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_helmet",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}}]}
+function zombieParticles(loc: location):
+	set {_shapes::innerFloorCircle} to a circular arc of radius 0.5 and angle of 360 degrees
+	set {_shapes::outerFloorCircle} to a circular arc of radius 1 and angle of 360 degrees
 
-command summonzombie:
+	create a new custom portal particle:
+		count: 0
+		force: true
+	
+	set {a} to last created particle
+	
+	set particle of {_shapes::*} to last created particle
+	create a new custom flash particle:
+		count: 0
+		force: true
+	
+	draw last created particle at {_loc}
+	loop 30 times:
+		draw shape {_shapes::*} at {_loc}:
+			add 1 to {_a}
+		wait 1 tick
+
+on death of zombie:
+	if victim has scoreboard tag "halloween":
+		cancel drops
+		set {_number} to a random number between 0 and 2
+		drop {_number} of yellow dye named "&eEssence of Halloween"
+		if {respawningOn} is true:
+			set {_deathLocation} to victim's location
+			wait 5 seconds
+			spawn an adult zombie at {_deathLocation}:
+				add "halloween" to the scoreboard tags of entity
+				set {_zombieGear::*} to netherite helmet,netherite chestplate,netherite leggings,netherite boots
+				enchant {_zombieGear::*} with protection 10
+				set {_zombieSword} to netherite sword
+				enchant {_zombieSword} with sharpness 12
+				equip entity with {_zombieGear::*}
+				set entity's tool to {_zombieSword}
+				set display name of entity to "&cGraveyard Zombie"
+				zombieParticles(entity's location)
+		else:
+			exit
+function summonZombies(l: location): # the "l" value needs to be set for this to work, but does nothing
+	spawn zombie at {@l1}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+	spawn zombie at {@l2}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+	spawn zombie at {@l3}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+	spawn zombie at {@l4}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+	spawn zombie at {@l5}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+	spawn zombie at {@l6}:
+		add "halloween" to the scoreboard tags of entity
+		kill entity
+
+command toggleRespawning: # A way to disable the infinite respawning of halloween-tagged mobs
+	permission: msd.halloween
 	trigger:
-		hw_summonZombie(player's position)
+		if {respawningOn} is true:
+			set {respawningOn} to false
+			send "Respawning set to %{respawningOn}%"
+		else:
+			set {respawningOn} to true
+			send "Respawning set to %{respawningOn}%"
 
+command spawnHalloweenZombie: # A way to spawn an initial zombie, for testing
+	permission: msd.halloween
+	trigger:
+		spawn zombie at player:
+			add "halloween" to the scoreboard tags of entity
+			kill entity
 
-/fill ~90 ~90 ~90 ~-90 ~-90 ~-90 air
+command respawnGraveZombies: # Spawns all of the initial zombies
+	permission: msd.halloween
+	trigger:
+		set {_respawningOnPrevious} to {respawningOn}
+		set {respawningOn} to false
+		execute console command "minecraft:kill @p[tag=halloween]"
+		set {respawningOn} to {_respawningOnPrevious}
+		summonZombies(player's location)
+		
