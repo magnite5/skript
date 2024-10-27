@@ -1,0 +1,17 @@
+options:
+	l1: 5071 15 5057 	# The VantyXD Gravestone
+	l2: 5090 15 5058 	# the Aryrth Gravestone
+	l3:	5048 15 5078	# The Cr4fty73 Gravestone
+	l4: 5058 15 5094	# The CallMeCanadian Gravestone
+	l5: 5083 15 5093	# The Herobrine Gravestone
+	l6: 5090 15 5091	# The Coolguy76 Gravestone
+
+function hw_summonZombie(l: position):
+	/summon zombie {_l} {CustomNameVisible:1b,PersistenceRequired:1b,CanBreakDoors:0b,Tags:["halloween","gravemobs"],CustomName:'{"text":"Grave Zombie","color":"red","underlined":true}',ArmorItems:[{id:"minecraft:netherite_boots",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_leggings",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_chestplate",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}},{id:"minecraft:netherite_helmet",Count:1b,tag:{Unbreakable:1b,Enchantments:[{id:"minecraft:protection",lvl:10s}]}}]}
+
+command summonzombie:
+	trigger:
+		hw_summonZombie(player's position)
+
+
+/fill ~90 ~90 ~90 ~-90 ~-90 ~-90 air
