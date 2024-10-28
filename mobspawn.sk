@@ -43,7 +43,7 @@ on death of zombie:
 	if victim has scoreboard tag "halloween":
 		cancel drops
 		set {_number} to a random number between 0 and 2
-		drop {_number} of yellow dye named "&"
+		drop {_number} of orange dye named "&6&kIII&r&6Essence of Halloween&kIII"
 		if {respawningOn} is true:
 			set {_deathLocation} to victim's location
 			wait 30 seconds
@@ -65,7 +65,7 @@ command h_spawnZombie: # A way to spawn an initial zombie, for testing
 	permission: msd.halloween
 	trigger:
 		spawnZombie(player's location)
-		send "Successfully summoned 1 zombie(s)"
+		send "Successfully summoned 1 zombie(s)" to player
 
 command h_respawnZombies: # Spawns all of the initial zombies
 	permission: msd.halloween
@@ -83,4 +83,4 @@ command h_respawnZombies: # Spawns all of the initial zombies
 		spawnZombie({@l5})
 		spawnZombie({@l5})
 		
-		"Successfully summoned 6 zombie(s)"
+		send "Successfully summoned 6 zombie(s)" to player
