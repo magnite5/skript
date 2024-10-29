@@ -6,26 +6,26 @@ options:
 	l5: location at (5083, 15, 5093) in world "world"	# The Herobrine Gravestone
 	l6: location at (5090, 15, 5091) in world "world"	# The Coolguy76 Gravestone
 
-function zombieParticles(loc: location):
-	set {_shapes::innerFloorCircle} to a circular arc of radius 0.5 and angle of 360 degrees
-	set {_shapes::outerFloorCircle} to a circular arc of radius 1 and angle of 360 degrees
+# function zombieParticles(loc: location):
+# 	set {_shapes::innerFloorCircle} to a circular arc of radius 0.5 and angle of 360 degrees
+# 	set {_shapes::outerFloorCircle} to a circular arc of radius 1 and angle of 360 degrees
 
-	create a new custom portal particle:
-		count: 0
-		force: true
+# 	create a new custom portal particle:
+# 		count: 0
+# 		force: true
 	
-	set {a} to last created particle
+# 	set {a} to last created particle
 	
-	set particle of {_shapes::*} to last created particle
-	create a new custom flash particle:
-		count: 0
-		force: true
+# 	set particle of {_shapes::*} to last created particle
+# 	create a new custom flash particle:
+# 		count: 0
+# 		force: true
 	
-	draw last created particle at {_loc}
-	loop 30 times:
-		draw shape {_shapes::*} at {_loc}:
-			add 1 to {_a}
-		wait 1 tick
+# 	draw last created particle at {_loc}
+# 	loop 30 times:
+# 		draw shape {_shapes::*} at {_loc}:
+# 			add 1 to {_a}
+# 		wait 1 tick
 
 function spawnZombie(l: location):
 	spawn an adult zombie at {_l}:
@@ -37,7 +37,7 @@ function spawnZombie(l: location):
 		equip entity with {_zombieGear::*}
 		set entity's tool to {_zombieSword}
 		set display name of entity to "&cGraveyard Zombie"
-		zombieParticles(entity's location)
+		# zombieParticles(entity's location)
 
 on death of zombie:
 	if victim has scoreboard tag "halloween":
