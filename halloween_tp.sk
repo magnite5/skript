@@ -1,0 +1,15 @@
+### UNTESTED
+
+options:
+	tp_location: location at (5043, 15, 5054) in world "world"
+command /h_tp
+	permission: msd.halloween
+	trigger:
+		teleport player tp {@tp_location}
+		set the player's gamemode to creative
+
+command /h_leave
+	permission: msd.halloween
+	trigger:
+		set the player's gamemode to survival
+		make player execute command "/spawn"
