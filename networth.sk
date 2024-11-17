@@ -22,4 +22,4 @@ command /networth:
     trigger:
         set {_nw} to getNW(player)
         send "&eYour networth is &a&n%{_nw}%&r§8 Netherite Ingots&e;"
-        send "&eThis value is based on the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest. It does not include anything stored within a shulker box."
+        send "&eCounts the amt. of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest. Does not include anything stored within a shulker box."
