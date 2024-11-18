@@ -37,7 +37,7 @@ command /networth [<text>]:
             send "&eThe networth Command counts the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest."
             send "&eNetworth is based in Netherite Ingots."
             send "&eIt &c&ndoes not &einclude anything stored within a &dshulker box&e."
-            send "&eYou can do &3&o/nw&r&e, &3&o/networth&r&e, or &3&o/worth&r&e to get your networth."
+            send "&eYou can do &3/nw&e, &3/networth&e, or &3/worth&e to get your networth."
             send ""
         else:
             send ""
