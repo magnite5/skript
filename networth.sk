@@ -11,7 +11,11 @@ function getNW(p: player) :: number:
     
     return {_nw}
 
-command /networth:
+# function updateNWRank(p: player):
+#     set {_nw} to getNW({_p})
+#     command "/"
+
+command /networth [<text>]:
     #Calculates the player's networth, from the player's inventory as well as their ender chest
     aliases: /networth, /nw, /worth
     executable by: players
@@ -21,5 +25,11 @@ command /networth:
     permission message: "&r&fYou do not have permission to run this command."
     trigger:
         set {_nw} to getNW(player)
-        send "&eYour networth is &a&n%{_nw}%&r§8 Netherite Ingots&e;"
-        send "&eCounts the amt. of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest. Does not include anything stored within a shulker box."
+        if arg-1 is set:
+            send "&eThe networth Command counts the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest."
+            send "&eIt &cdoes not &einclude anything stored within a &dshulker box."
+            send "&eYou can do &3&o/nw&r&e, &3&o/networth&r&e, or &3&o/worth&r&e to get your networth."
+        else:
+            send "&eYour networth is &a&n%{_nw}%&r§8 Netherite Ingots&e."
+            send "&bFor more info, do /nw info"
+        
