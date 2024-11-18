@@ -11,12 +11,19 @@ function getNW(p: player) :: number:
     
     return {_nw}
 
-# function updateNWRank(p: player):
-#     set {_nw} to getNW({_p})
-#     command "/"
+function getNWRank(p: player) :: number: # Returns 0 for none, 1 for aristocrat, 2 for huge aristocrat, and 3 for ultimate aristocrat
+    set {_nw} to getNW({_p})
+    if {_nw} >= 1000000:
+        return 3
+    else if {_nw} >= 500000:
+        return 2
+    else if {_nw} >= 250000:
+        return 1
+    else:
+        return 0
 
 command /networth [<text>]:
-    #Calculates the player's networth, from the player's inventory as well as their ender chest
+    # Calculates the player's networth, from the player's inventory / ender chest
     aliases: /networth, /nw, /worth
     executable by: players
     usage: "/nw"
@@ -25,11 +32,41 @@ command /networth [<text>]:
     permission message: "&r&fYou do not have permission to run this command."
     trigger:
         set {_nw} to getNW(player)
-        if arg-1 is set:
+        if arg-1 contains "info" or "-i":
+            send ""
             send "&eThe networth Command counts the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest."
-            send "&eIt &cdoes not &einclude anything stored within a &dshulker box."
+            send "&eNetworth is based in Netherite Ingots."
+            send "&eIt &c&ndoes not &einclude anything stored within a &dshulker box&e."
             send "&eYou can do &3&o/nw&r&e, &3&o/networth&r&e, or &3&o/worth&r&e to get your networth."
+            send ""
         else:
-            send "&eYour networth is &a&n%{_nw}%&r§8 Netherite Ingots&e."
-            send "&bFor more info, do /nw info"
-        
+            send ""
+            send "&eYour networth is &8%{_nw}%&e."
+            send ""
+            send "&3/nw info &bfor more information."
+            send "&3/nwr &bto recieve a networth rank."
+            send ""
+
+command /nwr [<text>]:
+    aliases: /networth-rank, /nw-rank, /nwrank
+    trigger:
+        if arg-1 contains "confirm":
+            set {_p} to player
+            set {_uuid} to {_p}'s uuid
+            set {_r} to getNWRank({_p})
+            set {_nw} to getNW({_p})
+            if {_r} is 3:
+                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &5Ultimate Aristocrat rank&e."
+                command "/lp user %{_p}% parent set ultimate-aristocrat"
+            else if {_r} is 2:
+                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &aHuge Aristocrat rank&e."
+                command "/lp user %{_p}% parent set huge-aristocrat"
+            else if {_r} is 1:
+                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &bAristocrat rank&e."
+                command "/lp user %{_p}% parent set aristocrat"
+            else:
+                send "&eYour networth is &8%{_nw}%&e. As such, your rank has remained unchanged."
+
+        else:
+            send "&cThis command will override your current rank."
+            send "&eIf you would like to proceed, run &3/nwr confirm"
