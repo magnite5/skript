@@ -1,15 +1,30 @@
-command /clear-chat:
+command /clear-chat [<text>]:
 	aliases: /cc, /clearchat, /chatclear, /chat-clear
 	permission: msd.cc
 	permission message: "&r&fYou do not have permission to run this command."
 	trigger:
 		set {_p} to player
-		loop all players:
-			loop 1000 times:
-				send " " to loop-player
-			send "&3---------------- &b| &cM&6S&cD&b |&3 ----------------"
-			send " "
-		broadcast "  &3%{_p}% &ehas cleared the chat"
-		loop all players:
-			send " "
-			send "&3---------------- &b| &cM&6S&cD&b |&3 ----------------"
+		if arg-1 contains "-n":
+			loop all players:
+				loop 1000 times:
+					send " " to loop-player
+
+		else if arg-1 contains "info" or "-i":
+			send "---- /cc info ----"
+			send "Aliases:"
+			send "  /cc, /clearchat, /chatclear, /chat-clear"
+			send "/cc -n to clear the chat with no message"
+			send "/cc info or /cc -i to see this message"
+			send "------------------"
+			
+		else:
+			loop all players:
+				loop 1000 times:
+					send " " to loop-player
+				send "  &b| &cM&6S&cD&b |&3 ----------------"
+				send " "
+			broadcast "  &3%{_p}% &ehas cleared the chat"
+			loop all players:
+				send " "
+				send "  &b| &cM&6S&cD&b |&3 ----------------"
+				send " "
