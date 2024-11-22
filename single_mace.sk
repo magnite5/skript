@@ -1,0 +1,18 @@
+on craft of mace:
+	if {mace_crafted} is not set:
+		set {mace_crafted} to true
+		broadcast "&3%event-player%&e Has crafted the Mace&e!"
+	else:
+		cancel event
+		send "&eThe mace has already been crafted."
+
+
+command /resetmace: # Run this to make the mace craftable again
+	permission: server.resetmace
+	permission message: "&cInsufficient Permisson."
+	trigger:
+		if {mace_crafted} is not set:
+			send "&eThe mace has not yet been crafted.&r" to player
+		else:
+			delete {mace_crafted}
+			send "&aThe mace is now craftable.&r" to player
