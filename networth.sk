@@ -34,14 +34,20 @@ command /networth [<text>]:
         set {_nw} to getNW(player)
         if arg-1 contains "info" or "-i":
             send ""
-            send "&eThe networth Command counts the amount of &2Kelp&e, &3Sea Pickles&e, and &2Compressed Kelp&e in your inventory and ender chest."
-            send "&eNetworth is based in Netherite Ingots."
-            send "&eIt &c&ndoes not &einclude anything stored within a &dshulker box&e."
-            send "&eYou can do &3/nw&e, &3/networth&e, or &3/worth&e to get your networth."
+            send "&bAbout &3Networth"
+            send ""
+            send " -> &bThe networth Command counts the amount of:"
+            send " - &2Kelp&b (Equal to &81024 NW&b)," 
+            send " - &3Sea Pickles&b (Equal to &82048 NW&b),"
+            send " - &2Compressed Kelp&b (Equal to &84096 NW&b)"
+            send " -> &b in your inventory and ender chest."
+            send " -> &bNetworth is based in Netherite Ingots."
+            send " -> &bIt &c&ndoes not &binclude anything stored within a &dshulker box&b."
+            send " -> &bYou can do &3/nw&b, &3/networth&b, or &3/worth&b to get your networth."
             send ""
         else:
             send ""
-            send "&eYour networth is &8%{_nw}%&e."
+            send "&bYour networth is &8%{_nw}%&b."
             send ""
             send "&3/nw info &bfor more information."
             send "&3/nwr &bto recieve a networth rank."
@@ -56,18 +62,18 @@ command /nwr [<text>]:
         if arg-1 contains "confirm":
             set {_nw} to getNW({_p})
             if {ranks::nw::%{_uuid}%} is 3:
-                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &5Ultimate Aristocrat rank&e."
+                send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &5Ultimate Aristocrat rank&b."
                 set {ranks::nw::%{_uuid}%} to 
                 command "/lp user %{_p}% parent set ultimate-aristocrat"
             else if {ranks::nw::%{_uuid}%} is 2:
-                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &aHuge Aristocrat rank&e."
+                send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &aHuge Aristocrat rank&b."
                 command "/lp user %{_p}% parent set huge-aristocrat"
             else if {ranks::nw::%{_uuid}%} is 1:
-                send "&eYour networth is &8%{_nw}%&e. As such, you have been granted the &bAristocrat rank&e."
+                send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &bAristocrat rank&b."
                 command "/lp user %{_p}% parent set aristocrat"
             else:
-                send "&eYour networth is &8%{_nw}%&e. As such, your rank has remained unchanged."
+                send "&bYour networth is &8%{_nw}%&b. As such, your rank has remained unchanged."
 
         else:
             send "&cThis command will override your current rank."
-            send "&eIf you would like to proceed, run &3/nwr confirm"
+            send "&bIf you would like to proceed, run &3/nwr confirm"
