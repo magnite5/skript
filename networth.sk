@@ -34,16 +34,16 @@ command /networth [<text>]:
         set {_nw} to getNW(player)
         if arg-1 contains "info" or "-i":
             send ""
-            send "&bAbout &3Networth"
+            send " &b&nAbout&f &3&nNetworth"
             send ""
-            send " -> &bThe networth Command counts the amount of:"
-            send " - &2Kelp&b (Equal to &81024 NW&b)," 
-            send " - &3Sea Pickles&b (Equal to &82048 NW&b),"
-            send " - &2Compressed Kelp&b (Equal to &84096 NW&b)"
-            send " -> &b in your inventory and ender chest."
-            send " -> &bNetworth is based in Netherite Ingots."
-            send " -> &bIt &c&ndoes not &binclude anything stored within a &dshulker box&b."
-            send " -> &bYou can do &3/nw&b, &3/networth&b, or &3/worth&b to get your networth."
+            send " &3&l» &bThe networth Command counts the amount of&3:"
+            send " &3┌ &2Kelp&b (Equal to &81024 NW&b)&3," 
+            send " &3├ &3Sea Pickles&b (Equal to &82048 NW&b)&3,"
+            send " &3├ &2Compressed Kelp&b (Equal to &84096 NW&b)&3."
+            send " &3└─ &bIn your inventory and ender chest&3."
+            send " &3&l» &r&bNetworth is based in Netherite Ingots&3."
+            send " &3&l» &r&bIt &c&ndoes not&b include anything stored within a &dshulker box&3."
+            send " &3&l» &r&bYou can do &3/nw&b, &3/networth&b, or &3/worth&b to get your networth&3."
             send ""
         else:
             send ""
@@ -58,17 +58,16 @@ command /nwr [<text>]:
     trigger:
         set {_p} to player
         set {_uuid} to {_p}'s uuid
-        set {ranks::nw::%{_uuid}%} to getNWRank({_p})
+        set {ranks::nw.%uuid of player%} to getNWRank({_p})
         if arg-1 contains "confirm":
             set {_nw} to getNW({_p})
-            if {ranks::nw::%{_uuid}%} is 3:
+            if {ranks::nw.%uuid of player%} is 3:
                 send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &5Ultimate Aristocrat rank&b."
-                set {ranks::nw::%{_uuid}%} to 
                 command "/lp user %{_p}% parent set ultimate-aristocrat"
-            else if {ranks::nw::%{_uuid}%} is 2:
+            else if {ranks::nw.%uuid of player%} is 2:
                 send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &aHuge Aristocrat rank&b."
                 command "/lp user %{_p}% parent set huge-aristocrat"
-            else if {ranks::nw::%{_uuid}%} is 1:
+            else if {ranks::nw.%uuid of player%} is 1:
                 send "&bYour networth is &8%{_nw}%&b. As such, you have been granted the &bAristocrat rank&b."
                 command "/lp user %{_p}% parent set aristocrat"
             else:
