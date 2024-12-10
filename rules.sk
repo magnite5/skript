@@ -42,6 +42,7 @@ command /rules [<text>] [<text>]:
 			send "  &3&l1.&r&3 Hacking"
 			send "  &3└ Punishment: Ban (Permanent)"
 			send "  &b&l2.&r&b Killing New Players."
+			send "  &3└ A new player is someone without Pro II Armour or above."
 			send "  &b└ Punishments: Warning (2w), Jail (2h), Ban (1w)"
 			send "  &3&l3.&r&3 Spawn Killing"
 			send "  &3└ Punishments: Warning (2w), Jail (2h), Ban (1w)"
