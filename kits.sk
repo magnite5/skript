@@ -1,0 +1,13 @@
+command /kit <text>:
+	trigger:
+		set inventory of player to {kits::%arg-1%} parsed as inventory
+
+command /create_kit <text>:
+	permission: msd.create_kit
+	permission message: "&cInsufficient Permissions"
+	usage: /create_kit <kit name> (uses what's in your inventory)
+	trigger:
+		if arg-1 is "help" or "list":
+			send "&cYou cannot name kits &4help &cor &4list"
+		else:
+			set {kits::%arg-1%} to inventory of player
