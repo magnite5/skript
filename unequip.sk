@@ -6,31 +6,31 @@ command /unequip [<text>] [<text>]:
 		if arg-2 is set:
 			set {_p} to arg-2 parsed as player
 		if arg-1 contains "helmet" or "hat" or "1":
-			if tool of player is air:
-				set {_i} to the helmet of player
-				set the helmet of player to air
-				set the tool of player to {_i}
+			if tool of {_p} is air:
+				set {_i} to the helmet of {_p}
+				set the helmet of {_p} to air
+				set the tool of {_p} to {_i}
 			else:
 				send "&cYour mainhand must be empty."
 		else if arg-1 contains "chestplate" or "tunic" or "2":
-			if tool of player is air:
-				set {_i} to the chestplate of player
-				set the chestplate of player to air
-				set the tool of player to {_i}
+			if tool of {_p} is air:
+				set {_i} to the chestplate of {_p}
+				set the chestplate of {_p} to air
+				set the tool of {_p} to {_i}
 			else:
 				send "&cYour mainhand must be empty."
 		else if arg-1 contains "leggings" or "pants" or "3":
-			if tool of player is air:
-				set {_i} to the leggings of player
-				set the leggings of player to air
-				set the tool of player to {_i}
+			if tool of {_p} is air:
+				set {_i} to the leggings of {_p}
+				set the leggings of {_p} to air
+				set the tool of {_p} to {_i}
 			else:
 				send "&cYour mainhand must be empty."
 		else if arg-1 contains "boots" or "shoes" or "socks" or "4":
-			if tool of player is air:
-				set {_i} to the boots of player
-				set the boots of player to air
-				set the tool of player to {_i}
+			if tool of {_p} is air:
+				set {_i} to the boots of {_p}
+				set the boots of {_p} to air
+				set the tool of {_p} to {_i}
 			else:
 				send "&cYour mainhand must be empty."
 		else if arg-1 contains "help" or "-h":
