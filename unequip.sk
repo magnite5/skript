@@ -1,0 +1,45 @@
+command /unequip [<text>] [<text>]:
+	aliases: takeoff, remove
+	# permission: msd.unequip
+	# permission message: "&cInsufficient Permissions."
+	trigger:
+		if arg-2 is set:
+			set {_p} to arg-2 parsed as player
+		if arg-1 contains "helmet" or "hat" or "1":
+			if tool of player is air:
+				set {_i} to the helmet of player
+				set the helmet of player to air
+				set the tool of player to {_i}
+			else:
+				send "&cYour mainhand must be empty."
+		else if arg-1 contains "chestplate" or "tunic" or "2":
+			if tool of player is air:
+				set {_i} to the chestplate of player
+				set the chestplate of player to air
+				set the tool of player to {_i}
+			else:
+				send "&cYour mainhand must be empty."
+		else if arg-1 contains "leggings" or "pants" or "3":
+			if tool of player is air:
+				set {_i} to the leggings of player
+				set the leggings of player to air
+				set the tool of player to {_i}
+			else:
+				send "&cYour mainhand must be empty."
+		else if arg-1 contains "boots" or "shoes" or "socks" or "4":
+			if tool of player is air:
+				set {_i} to the boots of player
+				set the boots of player to air
+				set the tool of player to {_i}
+			else:
+				send "&cYour mainhand must be empty."
+		else if arg-1 contains "help" or "-h":
+			send "&bUsage: &3/unequip <&bslot&3> <&btarget&3 (admin only)>" to player
+			send "&3Slot Options&b:"
+			send "&b - &3Helmet&b, &3hat&b, or &31&b."
+			send "&b - &3Chestplate&b, &3Tunic&b, or &32&b."
+			send "&b - &3Leggings&b, &3pants&b, or &33&b."
+			send "&b - &3Boots&b, &3shoes&b, &3socks&b, or &34&b."
+		else:
+			send "&bUsage: &3/unequip <&bslot&3>" to player
+			send "&bFor more information, use &3/unequip help" to player
