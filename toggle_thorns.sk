@@ -1,0 +1,20 @@
+command /thorns [<text>]:
+	trigger:
+		if arg-1 contains "confirm" or "c":
+			if player's tool is enchanted with thorns:
+				remove thorns from tool's enchantments
+			else if player's tool is enchanted with protection 100:
+				enchant player's tool with thorns 4
+			else if player's tool is enchanted with protection 10:
+				if player's tool is not a netherite helmet:
+					enchant player's tool with thorns 1
+				else:
+					send "&cThis item cannot be enchanted with thorns."
+			else if player's tool is enchanted with protection 20 or protection 30:
+				enchant player's tool with thorns 2
+			else if player's tool is enchanted with protection 70:
+				enchant player's tool with thorns 3
+			else:
+				send "&cThis item cannot be enchanted with thorns."
+		else:
+			send "&bTo toggle thorns on an item, hold it in your hand and run /thorns confirm."
