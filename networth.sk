@@ -44,7 +44,7 @@ command /networth [<text>]:
             send " &3┌ &2Kelp&b (Equal to &81024 NW&b)&3," 
             send " &3├ &3Sea Pickles&b (Equal to &82048 NW&b)&3,"
             send " &3├ &2Compressed Kelp&b (Equal to &84096 NW&b)&3."
-            send " &3├ &3Credits&b (Equal to &84096 NW&b)&3."
+            send " &3├ &6Credits&b (Equal to &84096 NW&b)&3."
             send " &3└─ &bIn your inventory and ender chest&3."
             send " &3&l» &r&bNetworth is based in Netherite Ingots&3."
             send " &3&l» &r&bIt &c&ndoes not&b include anything stored within a &dshulker box&3."
