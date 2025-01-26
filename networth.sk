@@ -1,6 +1,8 @@
 function getNW(p: player) :: number:
     set {-nw::ckelp_item} to a dried kelp block
     enchant {-nw::ckelp_item} with mending 10
+    set {-nw::credits_item} to an amethyst block
+    enchant {-nw::credits_item} with mending 10
 
     set {_nw} to (the amount of sea pickles in {_p}'s inventory) * 2048 
     add (the amount of sea pickles in {_p}'s ender chest) * 2048 to {_nw}
@@ -8,6 +10,8 @@ function getNW(p: player) :: number:
     add (the amount of dried kelp blocks in {_p}'s ender chest) * 1028 to {_nw}
     add (the amount of {-nw::ckelp_item} in {_p}'s inventory) * 3068 to {_nw} # Set to 3068, as 1024 is added earlier
     add (the amount of {-nw::ckelp_item} in {_p}'s ender chest) * 3068 to {_nw} # ^
+    add (the amount of {-nw::credits_item} in {_p}'s inventory) * 4096
+    add (the amount of {-nw::credits_item} in {_p}'s ender chest) * 4096
     
     return {_nw}
 
@@ -40,6 +44,7 @@ command /networth [<text>]:
             send " &3┌ &2Kelp&b (Equal to &81024 NW&b)&3," 
             send " &3├ &3Sea Pickles&b (Equal to &82048 NW&b)&3,"
             send " &3├ &2Compressed Kelp&b (Equal to &84096 NW&b)&3."
+            send " &3├ &3Credits&b (Equal to &84096 NW&b)&3."
             send " &3└─ &bIn your inventory and ender chest&3."
             send " &3&l» &r&bNetworth is based in Netherite Ingots&3."
             send " &3&l» &r&bIt &c&ndoes not&b include anything stored within a &dshulker box&3."
