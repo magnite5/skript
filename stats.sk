@@ -2,24 +2,25 @@ variables:
 	{kill counter.%player%.kills_total} = 0
 	{nw::players::%player%} = 0
 options:
-	kelp_value: 1024
+	kelp_value: 1024 # Compressed Kelp is 4x this value
 	pickle_value: 2048
 	credit_value: 4096
 
-function initializeNW():
-	set {nw::items::credits} to a block of amethyst of mending 10
-	set {nw::items::ckelp} to a dried kelp block of mending 10
-	set {-nw::variables_initialized} to true
-
-on skript start:
-	if {-nw::variables_initialized} is not true:
-		initializeNW()
-
-command /initializenw:
+command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS FIRST INSTATED
 	permission: skript.nwadmin
 	permission message: &cInsufficient Permissions.
+	usage: /define_nw_item <credit | ckelp> while holding the item
 	trigger:
-		initializeNW()
+		if arg-1 contains "cre":
+			set {nw::items::credit} to player's tool
+			send "&3Defined &6Credit Item&3 as &3%{nw::items::credit}%"
+			stop
+		else if arg-1 contains "ckelp" or "compressed kelp" or "comp kelp":
+			set {nw::items::ckelp} to player's tool
+			send "&3Defined &6Compressed Kelp Item&3 as &3%{nw::items::ckelp}%"
+			stop
+		send "&cThat item is not supported."
+
 
 ### KILLS ### 
 
@@ -43,7 +44,7 @@ command /kills [<offline player>]:
 			message "&cYou do not have permission to check the kills of other players."
 
 command /modifykills <offline player> <text> <number>:
-	aliases: /changekills, /ck
+	aliases: /changekills, /ck, /mk
 	usage: /ck <target> <+ | -> <amount>
 	permission: skript.modifykills
 	permission message: &cInsufficient Permissions.
@@ -71,19 +72,19 @@ function getInventoryValue(p: player) :: number:
 	set {_nw} to (the amount of sea pickles in {_p}'s inventory) * {@pickle_value} 
 	add (the amount of dried kelp blocks in {_p}'s inventory) * {@kelp_value} to {_nw}
 	add (the amount of {nw::items::ckelp} in {_p}'s inventory) * ({@kelp_value} * 3) to {_nw} # Set to *3, as the other 1 is added earlier
-	add (the amount of {nw::items::credits} in {_p}'s inventory) * {@credit_value} to {_nw}
+	add (the amount of {nw::items::credit} in {_p}'s inventory) * {@credit_value} to {_nw}
 
 	return {_nw}
 
-function removeItems(p: player, a: number, i: item):
+function removeItems(p: player, a: number, i: item, t: boolean):
 	set {_a_inv} to the amount of {_i} in {_p}'s inventory
 	if {_a_inv} is less than {_a}:
-		send "&3You do not have enough of this item." to {_p}
+		send "&cYou do not have enough of this item." to {_p}
 	else:
 		remove {_a} of {_i} from {_p}'s inventory
 		if {_i} is {nw::items::ckelp}:
 			add {_a} * {@kelp_value} * 4 to {_nw}
-		else if {_i} is {nw::items::credits}:
+		else if {_i} is {nw::items::credit}:
 			add {_a} * {@credit_value} to {_nw}
 		else if {_i} is a dried kelp block:
 			add {_a} * {@kelp_value} to {_nw}
@@ -92,90 +93,216 @@ function removeItems(p: player, a: number, i: item):
 		else:
 			send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
 		add {_nw} to {nw::players::%{_p}%}
-		send "&3Added &6%{_nw}% &3to your Net Worth." to {_p}
+		if {_t} is true:
+			send "&3Added &6%{_nw}% &3to your Net Worth." to {_p}
+			send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+
+function addNWItems(p: player, a: number, i: item):
+	set {_slots} to ceil({_a} / 64)
+	if {_i} is {nw::items::ckelp}:
+		set {_value} to ({@kelp_value} * 4)
+	else if {_i} is {nw::items::credit}:
+		set {_value} to {@credit_value}
+	else if {_i} is a dried kelp block:
+		set {_value} to {@kelp_value}
+	else if {_i} is a sea pickle:
+		set {_value} to {@pickle_value}
+	else:
+		send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
+		stop
+	if {_a} is 0:
+		set {_a} to floor({nw::players::%{_p}%} / ({_value}))
+		remove ({_a} * {_value}) from {nw::players::%{_p}%}
+		give {_p} {_a} of {_i}
+		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
 		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+	else if {nw::players::%{_p}%} is less than ({_a} * {_value}):
+		send "&cYou do not have enough Net Worth to perform this action." to {_p}
+	else:
+		# if there are at least {_slots} slots that are empty in the player's inventory:
+		remove ({_a} * {_value}) from {nw::players::%{_p}%}
+		give {_p} {_a} of {_i}
+		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
+		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+		# else:
+		# 	send "&cYou do not have enough empty inventory space."
+
+function clearNWItems(p: player):
+	set {_v} to getInventoryValue({_p})
+	add {_v} to {nw::players::%{_p}%}
+
+	remove all dried kelp blocks from {_p}'s inventory
+	remove all sea pickles from {_p}'s inventory
+	remove all {nw::items::credit} from {_p}'s inventory
+	remove all {nw::items::ckelp} from {_p}'s inventory
+
+	send "&3Added &6%{_v}% &3to your Net Worth." to {_p}
+	send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
 
 function networthGUI(p: player):
 	set {_gui} to chest inventory with 5 rows named "Convert Items"
 
 	set {_kamt} to (the amount of dried kelp blocks in {_p}'s inventory)
 	set {_pamt} to (the amount of sea pickles in {_p}'s inventory)
-	set {_camt} to (the amount of {nw::items::credits} in {_p}'s inventory)
+	set {_ckamt} to (the amount of {nw::items::ckelp} in {_p}'s inventory)
+	set {_camt} to (the amount of {nw::items::credit} in {_p}'s inventory)
+
+	set {_total} to getInventoryValue({_p})
+
+	set {_max::kelp} to floor({nw::players::%{_p}%} / ({@kelp_value}))
+	set {_max::pickles} to floor({nw::players::%{_p}%} / ({@pickle_value}))
+	set {_max::ckelp} to floor({nw::players::%{_p}%} / ({@kelp_value} * 4))
+	set {_max::credits} to floor({nw::players::%{_p}%} / ({@credit_value}))
+
+	set slot (integers between 0 and 45) of {_gui} to lime stained glass pane named " "
+	set slot (integers between 0 and 4) and (integers between 9 and 12) and (integers between 18 and 21) and (integers between 27 and 30) and (integers between 36 and 39) of {_gui} to red stained glass pane named " "
+	set slot 4 and 13 and 22 and 31 and 40 of {_gui} to light blue stained glass pane named " "
+	# Important Things
+	set slot 13 of {_gui} to the skull of {_p} named "&6%name of {_p}%" with lore " &b&l»&r &3Net Worth: &6%{nw::players::%{_p}%}%"
+	set slot 31 of {_gui} to paper named "&c&lDEPOSIT &r&3| &l&bEVERYTHING" with lore " &b&l»&r &3Inventory Value: &6%{_total}%"
+	# Deposits
+	set slot 10 of {_gui} to dried kelp block named "&c&lDEPOSIT &r&3| &2Dried Kelp Block" with lore " &b&l»&r &3Left Click: Deposit &b&lALL" and " &b└ &6%{_kamt}%&3 for &6%{_kamt} * {@kelp_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Deposit &b&l1" and " &b└ &3For &6%1 * {@kelp_value}%&3 NW"	
+	set slot 11 of {_gui} to sea pickle named "&c&lDEPOSIT &r&3| &3Sea Pickles" with lore " &b&l»&r &3Left Click: Deposit &b&lALL" and " &b└ &6%{_pamt}%&3 for &6%{_pamt} * {@pickle_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Deposit &b&l1" and " &b└ &3For &6%1 * {@pickle_value}%&3 NW"
+	set slot 28 of {_gui} to dried kelp block of mending 10 named "&c&lDEPOSIT &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Deposit &b&lALL" and " &b└ &6%{_ckamt}%&3 for &6%{_ckamt} * {@kelp_value} * 4%&3 NW" and " " and " &b&l»&r &3Right Click: Deposit &b&l1" and " &b└ &3For &6%4 * {@kelp_value}%&3 NW"	
+	set slot 29 of {_gui} to amethyst block of mending 10 named "&c&lDEPOSIT &r&3| &6Credits" with lore " &b&l»&r &3Left Click: Deposit &b&lALL" and " &b└ &6%{_camt}%&3 for &6%{_camt} * {@credit_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Deposit &b&l1" and " &b└ &3For &6%1 * {@credit_value}%&3 NW"
+
+	# Withdrawals
+	set slot 15 of {_gui} to dried kelp block named "&a&lWITHDRAW &r&3| &2Dried Kelp Block" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::kelp}%&3 for &6%{_max::kelp} * {@kelp_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@kelp_value}%&3 NW"
+	set slot 16 of {_gui} to sea pickle named "&a&lWITHDRAW &r&3| &3Sea Pickles" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::pickles}%&3 for &6%{_max::pickles} * {@pickle_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@pickle_value}%&3 NW"
+	set slot 33 of {_gui} to dried kelp block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::ckelp}%&3 for &6%{_max::ckelp} * {@kelp_value} * 4%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%4 * {@kelp_value}%&3 NW"
+	set slot 34 of {_gui} to amethyst block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::credits}%&3 for &6%{_max::credits} * {@credit_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@credit_value}%&3 NW"
+	
 
 
-	set slot (integers between 0 and 45) of {_gui} to light blue stained glass pane
-	set slot 0 of {_gui} to the skull of {_p} named "&6%name of {_p}%" with lore " &b&l»&r &3Net Worth: &6%{nw::players::%{_p}%}%"
-	set slot 10 of {_gui} to dried kelp block named "&b&lALL &r&3| &2Dried Kelp Block" with lore " &b&l»&r &3Amount: &6%{_kamt}%" and " &b&l»&r &3Value: &6%{_kamt} * {@kelp_value}%"
-	set slot 11 of {_gui} to sea pickle named "&b&lALL &r&3| &3Sea Pickles" with lore " &b&l»&r &3Amount: &6%{_pamt}%" and " &b&l»&r &3Value: &6%{_pampt} * {@pickle_value}%"
-	set slot 12 of {_gui} to amethyst block named "&b&lALL &r&3| &6Credits" with lore " &b&l»&r &3Amount: &6%{_camt}%" and " &b&l»&r &3Value: &6%{_camt} * {@credit_value}%"
-	set slot 14 of {_gui} to stone
-	set slot 15 of {_gui} to granite
-	set slot 16 of {_gui} to diorite
-	set slot 19 of {_gui} to dried kelp block named "&b&lHALF &r&3| &2Dried Kelp Block" with lore " &b&l»&r &3Amount: &6%{_kamt} * 0.5%" and " &b&l»&r &3Value: &6%{_kamt} * {@kelp_value} * 0.5%"
-	set slot 20 of {_gui} to sea pickle named "32" with lore "a"
-	set slot 21 of {_gui} to amethyst block named "32" with lore "a"
-	set slot 23 of {_gui} to stone
-	set slot 24 of {_gui} to granite
-	set slot 25 of {_gui} to diorite
-	set slot 28 of {_gui} to dried kelp block named "1x Dried Kelp Block" with lore "cool lore"
-	set slot 29 of {_gui} to sea pickle named "1" with lore "a"
-	set slot 30 of {_gui} to amethyst block named "1" with lore "a"
-	set slot 32 of {_gui} to stone
-	set slot 33 of {_gui} to granite
-	set slot 34 of {_gui} to diorite
 	open {_gui} to {_p}
-
-command /getcredits:
-	trigger:
-		initializeNW()
-		send "%the amount of {nw::items::credits} in player's inventory%" to player
 
 on inventory click:
 	name of event-inventory is "Convert Items"
 	cancel event
 	event-inventory is not player's inventory
-	if clicked slot is 10:
-		removeItems(player, the amount of dried kelp blocks in player's inventory, dried kelp block)
+	# Important
+	if clicked slot is 31: # Paper - Withdraw All
+		removeItems(player, the amount of dried kelp blocks in player's inventory, dried kelp block, no)
+		removeItems(player, the amount of sea pickles in player's inventory, sea pickle, no)
+		removeItems(player, the amount of {nw::items::ckelp} in player's inventory, {nw::items::ckelp}, no)
+		removeItems(player, the amount of {nw::items::credit} in player's inventory, {nw::items::credit}, no)
 		networthGUI(player)
-	else if clicked slot is 11:
-		removeItems(player, the amount of sea pickles in player's inventory, sea pickle)
+		send "&3Added &6%getInventoryValue(player)%&3 to your Net Worth."
+		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%"
+	# Deposits
+	else if clicked slot is 10: # Kelp
+		if click type is left mouse button:
+			removeItems(player, the amount of dried kelp blocks in player's inventory, dried kelp block, yes)
+		else:
+			removeItems(player, 1, dried kelp block, yes)
 		networthGUI(player)
-	else if clicked slot is 12:
-		send "You clicked on slot 12"
-	else if clicked slot is 14:
-		send "You clicked on slot 14"
-	else if clicked slot is 15:
-		send "You clicked on slot 15"
-	else if clicked slot is 16:
-		send "You clicked on slot 16"
-	else if clicked slot is 19:
-		send "You clicked on slot 19"
-	else if clicked slot is 20:
-		send "You clicked on slot 20"
-	else if clicked slot is 21:
-		send "You clicked on slot 21"
-	else if clicked slot is 23:
-		send "You clicked on slot 23"
-	else if clicked slot is 24:
-		send "You clicked on slot 24"
-	else if clicked slot is 25:
-		send "You clicked on slot 25"
-	else if clicked slot is 28:
-		send "You clicked on slot 28"
+	else if clicked slot is 11: # Pickles
+		if click type is left mouse button:
+			removeItems(player, the amount of sea pickles in player's inventory, sea pickle, yes)
+		else:
+			removeItems(player, 1, sea pickle, yes)
+		networthGUI(player)
+	else if clicked slot is 28: # CKelp
+		if click type is left mouse button:
+			removeItems(player, the amount of {nw::items::ckelp} in player's inventory, {nw::items::ckelp}, yes)
+		else:
+			removeItems(player, 1, {nw::items::ckelp}, yes)
+		networthGUI(player)
 	else if clicked slot is 29:
-		send "You clicked on slot 29"
-	else if clicked slot is 30:
-		send "You clicked on slot 30"
-	else if clicked slot is 32:
-		send "You clicked on slot 32"
-	else if clicked slot is 33:
-		send "You clicked on slot 33"
-	else if clicked slot is 34:
-		send "You clicked on slot 34"
+		if click type is left mouse button: # Credits
+			removeItems(player, the amount of {nw::items::credit} in player's inventory, {nw::items::credit}, yes)
+		else:
+			removeItems(player, 1, {nw::items::credit}, yes)
+		networthGUI(player)
+	# Withdrawals
+	else if clicked slot is 15: # Kelp
+		if click type is left mouse button:
+			addNWItems(player, 0, dried kelp block)
+		else:
+			addNWItems(player, 1, dried kelp block)
+		networthGUI(player)
+	else if clicked slot is 16: # Pickles
+		if click type is left mouse button:
+			addNWItems(player, 0, sea pickle)
+		else:
+			addNWItems(player, 1, sea pickle)
+		networthGUI(player)
+	else if clicked slot is 33: # CKelp
+		if click type is left mouse button:
+			addNWItems(player, 0, {nw::items::ckelp})
+		else:
+			addNWItems(player, 1, {nw::items::ckelp})
+		networthGUI(player)
+	else if clicked slot is 34: # Credits
+		if click type is left mouse button:
+			addNWItems(player, 0, {nw::items::credit})
+		else:
+			addNWItems(player, 1, {nw::items::credit})
+		networthGUI(player)
 
 command /convert [<text>] [<number>]:
+	aliases: /cv
 	trigger:
 		networthGUI(player)
+
+command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
+	aliases: /worth, /networth
+	trigger:
+		if arg-1 is "-h" or "help" or "-i" or "info":
+			send ""
+			send " &b| &3About &6Net Worth&b |&3 ----------------"
+			send ""
+			send " &b&l» &r&3Networth can be Withdrawn and Deposited using /convert (or &3/cv&3)."
+			send " &b┌ &2Dried Kelp Blocks&b (&3Equal to &6%1 *{@kelp_value}% NW&b)&3," 
+			send " &b├ &3Sea Pickles&b (&3Equal to &6%1 * {@pickle_value}% NW&b)&3,"
+			send " &b├ &2Compressed Kelp&b (&3Equal to &6%4 * {@kelp_value}% NW&b)&3."
+			send " &b├ &6Credits&b (&3Equal to &6%1 * {@credit_value}% NW&b)&3."
+			send " &b└─ &3In your inventory and ender chest."
+			send " &b&l» &r&3Networth is based in Netherite Ingots&3."
+			send " &b&l» &r&3You can do &b/nw&3, &b/networth&3, or &b/worth&3 to get your networth&3."
+			send ""
+			send " &b| &3About &6Net Worth&b |&3 ----------------"
+			send ""
+			if player has permission "skript.nwadmin":
+				send " &b| &3Admin &6Net Worth&3 Help&b |&3 ----------------"
+				send ""
+				send " &b&l» &r&3Usage: &9/nw <operator> <target> <amount>"
+				send ""
+				send " &bPossible Operators:"
+				send " &b┌ ?&3 or&b query &6&l»&r&3 Returns the balance of the target."
+				send " &b├ +&3,&b add&3,&b sum&3 or&b plus &6&l»&r&3 Adds the specified value."
+				send " &b├ -&3,&b sub&3,&b diff&3 or&b minus &6&l»&r&3 Subtracts the specified value."
+				send " &b└ =&3,&b sub&3,&b diff&3 or&b minus &6&l»&r&3 Sets the balance of the target to the specified value."
+				send ""
+				send " &b| &3Admin &6Net Worth&3 Help&b |&3 ----------------"
+
+		else if arg-1 is set:
+			set {_uuid} to arg-2's uuid
+			if player has permission "skript.nwadmin":
+				if arg-1 is "get" or "query" or "?":
+					send "&3Player &b%arg-2%&3 has &6%{nw::players::%arg-2%}%&3 Net Worth."
+				else if arg-1 is "add" or "+" or "sum" or "plus":
+					send "&3Added &6%arg-3% &3NW to the balance of &b%arg-2%&3."
+					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
+					add arg-3 to {nw::players::%arg-2%}
+					send "&3Their new balance: &6%{nw::players::%arg-2%}%&3."
+				else if arg-1 is "minus" or "-" or "difference" or "diff" or "remove" or "subtract" or "sub":
+					send "&3Removed &6%arg-3% &3NW from the balance of &b%arg-2%&3."
+					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
+					remove arg-3 from {nw::players::%arg-2%}
+					send "&3Their new balance: &6%{nw::players::%arg-2%}%&3."
+				else if arg-1 is "set" or "=":
+					send "&3Set the balance of &b%arg-2%&3 to &6%arg-3%&3."
+					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
+					set {nw::players::%arg-2%} to arg-3
+				else:
+					send "&cUnsupported Operator."
+			else:
+				send "&cInsufficient Permissions."
+		else:
+			send "&3Your Net Worth is &6%{nw::players::%player%}%&3."
+			send "&3Useful Commands: &b/convert&3, &b/nw help&3."
+				
 
 ### RANKS ###
 function setRank(p: offline player, r: text):
@@ -184,7 +311,7 @@ function setRank(p: offline player, r: text):
 function removeRank(p: offline player):
 	make console execute "/lp user %{_p}% parent set default"
 			
-command /addrank [<offline player>] <text>:
+command /setrank [<offline player>] <text>:
 	permission: skript.addranks
 	permission message: you dont have permission
 	trigger:
