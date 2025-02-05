@@ -1,0 +1,21 @@
+command /kms [<number>]:
+	aliases: /die, /suicide
+	usage: /kms <answer>
+	cooldown: 1 hour
+	cooldown message: This command is on cooldown.
+	cooldown bypass: skript.kms.bypass_cooldown
+	trigger:
+		if {captcha::%player%::1} is set:
+			if arg-1 is ({captcha::%player%::1} + {captcha::%player%::2}):
+				send "That is Correct! Have Fun!"
+				kill player
+				delete {captcha::%player%::*}
+			else:
+				send "&cThat is not the correct answer."
+				send "&c%{captcha::%player%::1}% + %{captcha::%player%::2}% = ?"
+		else:
+			if {captcha::%player%::1} is not set:
+				set {captcha::%player%::1} to a random integer between 100 and 999
+				set {captcha::%player%::2} to a random integer between 100 and 999
+				send "%{captcha::%player%::1}% + %{captcha::%player%::2}% = ?"
+				send "/kms <answer>"
