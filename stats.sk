@@ -202,8 +202,6 @@ function networthGUI(p: player):
 	set slot 33 of {_gui} to dried kelp block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::ckelp}%&3 for &6%{_max::ckelp} * {@kelp_value} * 4%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%4 * {@kelp_value}%&3 NW"
 	set slot 34 of {_gui} to amethyst block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::credits}%&3 for &6%{_max::credits} * {@credit_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@credit_value}%&3 NW"
 	
-
-
 	open {_gui} to {_p}
 
 on inventory click:
@@ -337,6 +335,10 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 
 ### RANKS ###
 function setRank(p: offline player, r: text):
+	set {_phrases::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+	loop {_phrases::*}:
+		if {_r} contains loop-value:
+			
 	make console execute "/lp user %{_p}% parent set %{_r}%"
 
 function removeRank(p: offline player):
@@ -353,24 +355,6 @@ command /removerank [<offline player>]:
 	permission message: you dont have permission
 	trigger:
 		removeRank(arg-1)
-
-# function getPlayerRank(p: offline player, v: boolean) # TRUE -> NW RANKS
-# 	loop indices of {nw_ranks::*}:
-# 		if {nw::players::%{_p}%} is greater than or equal to {nw_ranks::%loop-value%::req}:
-# 			set {ranks::players::%{_p}%::%loop-value%} to true
-# 		else:
-# 			set {ranks::players::%{_p}%::%loop-value%} to false
-# 	loop indices of {k_ranks::*}:
-# 		if {kill counter.%{_p}%.kills_total} is greater than or equal to {k_ranks::%loop-value%::req}:
-# 			set {ranks::players::%{_p}%::%loop-value%} to true
-# 		else:
-# 			set {ranks::players::%{_p}%::%loop-value%} to false
-
-# command /getpossiblerank <offline player>:
-# 	trigger:
-# 		getPlayerRank(arg-1)
-# 		loop indices of {ranks::players::%arg-1%::*}:
-# 			print loop-value
 
 function ranksGuiMain(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
@@ -394,9 +378,9 @@ function ranksGuiKills(p: player):
 		set slot 10 of {_gui} to wooden sword of sharpness 10 named "&31. &cMurderer&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::murderer::req:}% &3Kills" and "&b&l»&r &9Click to Equip"
 	
 	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::genocidal-maniac::req:}:
-		set slot 11 of {_gui} to stone sword named "&32.&#983040 Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req:}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::genocidal-maniac::req:} - {kill counter.%{_p}%.kills_total}%"
+		set slot 11 of {_gui} to stone sword named "&32.&<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req:}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::genocidal-maniac::req:} - {kill counter.%{_p}%.kills_total}%"
 	else:
-		set slot 11 of {_gui} to stone sword of sharpness 10 named "&32.&#983040 Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 11 of {_gui} to stone sword of sharpness 10 named "&32.&<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and "&b&l»&r &9Click to Equip"
 	
 	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::sadistic::req}:
 		set slot 12 of {_gui} to gold sword named "&33. &r &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::sadistic::req} - {kill counter.%{_p}%.kills_total}%"
@@ -404,9 +388,9 @@ function ranksGuiKills(p: player):
 		set slot 12 of {_gui} to gold sword of sharpness 10 named "&33. &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and "&b&l»&r &9Click to Equip"
 
 	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::demon::req}:
-		set slot 14 of {_gui} to iron sword named "&34.&#610000 Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::demon::req} - {kill counter.%{_p}%.kills_total}%"
+		set slot 14 of {_gui} to iron sword named "&34.&<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::demon::req} - {kill counter.%{_p}%.kills_total}%"
 	else:
-		set slot 14 of {_gui} to iron sword of sharpness 10 named "&34.&#610000 Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 14 of {_gui} to iron sword of sharpness 10 named "&34.&<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &9Click to Equip"
 	
 	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::demon::req}:
 		set slot 15 of {_gui} to diamond sword named "&35.&5 Reaper&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::reaper::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::reaper::req} - {kill counter.%{_p}%.kills_total}%"
@@ -424,18 +408,15 @@ function ranksGuiNetworth(p: player):
 	set {_gui} to chest inventory with 3 rows named "§aNetworth Ranks"
 	## SOME OF THESE COLOURS ARE PROBABLY RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
-	# set {_s} to 10
-	# loop indices of {nw_ranks::*}:
-	# 	if {nw::players::%{_p}%} is greater than or equal to {nw-ranks::%loop-value%::display}:
-	# 		set slot {_s} of {_gui} to {nw-ranks::%loop-value%::item} of mending 10 named {nw-ranks::%loop-value%::display} with lore " &b&l»&r &3Requirement: &6%{nw-ranks::%loop-value%::req:}% &3Net Worth" and "&b&l»&r &9Click to Equip"
-	# 	else:
-	# 		set slot {_s} of {_gui} to {nw-ranks::%loop-value%::item} named {nw-ranks::%loop-value%::display} with lore " &b&l»&r &3Requirement: &6%{nw-ranks::%loop-value%::req:}% &3Net Worth" and "&b&l»&r &3Net Worth Left: &6%{nw-ranks::%loop-value%::req:} - {nw::players::%{_p}%}%"
-	# 	add 1 to {_s}
-	# if {nw::players::%{_p}%} is greater than or equal to 1000000:
-	# 	set slot 15 of {_gui} to sea pickle of mending 10 named "&f3. &5Ultimate Aristocrat&r" with lore "&fGiven to players with &a1 000 000 Net Worth&f." and ""
-	# else:
-	set slot 11 of {_gui} to dried kelp named "&f1. &bAristocrat&r" with lore "&fGiven to players with &a250 000 Net Worth&f."
-	set slot 13 of {_gui} to dried kelp block named "&f2. &aHuge Aristocrat&r" with lore "&fGiven to players with &a500 000 Net Worth&f."
+	if {nw::players::%{_p}%} is less than {nw-ranks::aristocrat:req}:
+		set slot 11 of {_gui} to netherite sword named "&31. &3Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::aristocrat::req} - {nw::players::%{_p}%}%"
+	else:
+	if {nw::players::%{_p}%} is less than {nw-ranks::huge-aristocrat:req}:
+		set slot 13 of {_gui} to netherite sword named "&33. &aHuge Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::huge-aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::huge-aristocrat::req} - {nw::players::%{_p}%}%"
+	else:
+	if {nw::players::%{_p}%} is less than {nw-ranks::ultimate-aristocrat:req}:
+		set slot 15 of {_gui} to netherite sword named "&33. &5Ultimate Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::ultimate-aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::ultimate-aristocrat::req} - {nw::players::%{_p}%}%"
+	else:
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
@@ -466,6 +447,10 @@ on inventory click:
 	else if name of event-inventory is "§cKills Ranks":
 		cancel event
 		event-inventory is not player's inventory
+
+		if clicked slot is 10:
+			
+
 		if clicked slot is 26:
 			ranksGuiMain(player)
 
