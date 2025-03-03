@@ -3,34 +3,15 @@ variables:
 	{nw::players::%player%} = 0
 
 	{k-ranks::murderer::req} = 500
-	# {k-ranks::murderer::display} = "&cMurderer"
-	# {k-ranks::murderer::item} = ("Wooden Sword" parsed as item)
 	{k-ranks::genocidal-maniac::req} = 1000
-	# {k-ranks::genocidal-maniac::display} = "&#983040Genocidal Maniac"
-	# {k-ranks::genocidal-maniac::item} = ("Stone Sword" parsed as item)
 	{k-ranks::sadistic::req} = 2500
-	# {k-ranks::sadistic::display} = "&dSadistic"
-	# {k-ranks::sadistic::item} = ("Iron Sword" parsed as item)
 	{k-ranks::demon::req} = 5000
-	# {k-ranks::demon::display} = "&#610000Demon"
-	# {k-ranks::demon::item} = ("Golden Sword" parsed as item)
 	{k-ranks::reaper::req} = 7500
-	# {k-ranks::reaper::display} = "&5Reaper"
-	# {k-ranks::demon::item} = ("Diamond Sword" parsed as item)
 	{k-ranks::blood-god::req} = 10000
-	# {k-ranks::blood-god::display} = "&6Blood God"
-	# {k-ranks::blood-god::item} = ("Netherite Sword" parsed as item)
 
 	{nw-ranks::aristocrat::req} = 250000
-	# {nw-ranks::aristocrat::display} = "&3Aristocrat"
-	# {nw-ranks::aristocrat::item} = ("Dried Kelp Block" parsed as item)
 	{nw-ranks::huge-aristocrat::req} =  500000
-	# {nw-ranks::huge-aristocrat::display} = "&aHuge Aristocrat"
-	# {nw-ranks::huge-aristocrat::item} = ("Sea Pickle" parsed as item)
 	{nw-ranks::ultimate-aristocrat::req} = 1000000
-	# {nw-ranks::ultimate-aristocrat::display} = "&5Ultimate Aristocrat"
-	# {nw-ranks::ultimate-aristocrat::item} = ("Block of Amethyst" parsed as item)
-
 	# {staff_ranks::*} = "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
 
 
