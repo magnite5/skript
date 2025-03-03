@@ -1,5 +1,5 @@
 variables:
-	{kill counter.%player%.kills_total} = 0
+	{kills::players::%player%} = 0
 	{nw::players::%player%} = 0
 
 	{k-ranks::murderer::req} = 500
@@ -18,7 +18,7 @@ variables:
 	# {k-ranks::reaper::display} = "&5Reaper"
 	# {k-ranks::demon::item} = ("Diamond Sword" parsed as item)
 	{k-ranks::blood-god::req} = 10000
-	# {k-ranks::blood-god::display} = "&6Warrior of the Blood God"
+	# {k-ranks::blood-god::display} = "&6Blood God"
 	# {k-ranks::blood-god::item} = ("Netherite Sword" parsed as item)
 
 	{nw-ranks::aristocrat::req} = 250000
@@ -30,6 +30,9 @@ variables:
 	{nw-ranks::ultimate-aristocrat::req} = 1000000
 	# {nw-ranks::ultimate-aristocrat::display} = "&5Ultimate Aristocrat"
 	# {nw-ranks::ultimate-aristocrat::item} = ("Block of Amethyst" parsed as item)
+
+	# {staff_ranks::*} = "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+
 
 options:
 	kelp_value: 1024 # Compressed Kelp is 4x this value
@@ -59,19 +62,19 @@ on death of player:
 	if attacker is victim:
 		stop
 	else:
-		add 1 to {kill counter.%attacker%.kills_total}
+		add 1 to {kills::players::%attacker%}
 	
 command /kills [<offline player>]:
 	trigger:
 		if arg-1 is not set:
 			if command sender is not console:
-				message "You have %{kill counter.%player%.kills_total}% kills in total."
+				message "You have %{kills::players::%player%}% kills in total."
 			else:
 				message "&cA console does not have a kill count."
 		else if player has permission "skript.getkills":
-			message "&b%arg-1% has &6%{kill counter.%arg-1%.kills_total}%&r kills in total."
+			message "&b%arg-1% has &6%{kills::players::%arg-1%}%&r kills in total."
 		else:
-			message "&cYou do not have permission to check the kills of other players."
+			message "&cYou do not have permission to view the kills of other players."
 
 command /modifykills <offline player> <text> <number>:
 	aliases: /changekills, /ck, /mk
@@ -80,21 +83,25 @@ command /modifykills <offline player> <text> <number>:
 	permission message: &cInsufficient Permissions.
 	trigger:
 		if arg-2 contains "add" or "+" or "sum":
-			add arg-3 to {kills counter.%arg-1%.kills_total}
+			add arg-3 to {kills::players::%arg-1%}
 		else if arg-2 contains "subtract" or "sub" or "minus" or "-" or "difference" or "diff":
-			subtract arg-3 from {kills counter.%arg-1%.kills_total}
+			subtract arg-3 from {kills::players::%arg-1%}
 		else:
 			send "&cOne of your arguments is invalid. Please try again."
-		send "The player &b%arg-1%&r now has &6%{kill counter.%arg-1%.kills_total}%&r kills total" to player
+		send "The player &b%arg-1%&r now has &6%{kills::players::%arg-1%}%&r kills total" to player
 
 command /checkkills:
 	permission: skript.checkkills
 	permission message: you dont have permission
 	trigger:
 		loop all players:
-			send "The player &b%loop-player% has &6%{kill counter.%loop-player%.kills_total}%&r kills in total." to player
+			send "The player &b%loop-player%&r has &6%{kills::players::%loop-player%}%&r kills in total." to player
 
-
+on join:
+	if {kills-updated::*} does not contain player:
+		add {kill counter.%player%.kills_total} to {kills::players::%player%}
+		set {kill counter.%player%.kills_total} to 0
+		add player to {kills-updated::*}
 
 ### NETWORTH ###
 function getInventoryValue(p: player) :: number:
@@ -125,7 +132,7 @@ function removeItems(p: player, a: number, i: item, t: boolean):
 		add {_nw} to {nw::players::%{_p}%}
 		if {_t} is true:
 			send "&3Added &6%{_nw}% &3to your Net Worth." to {_p}
-			send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+			send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 
 function addNWItems(p: player, a: number, i: item):
 	set {_slots} to ceil({_a} / 64)
@@ -145,7 +152,7 @@ function addNWItems(p: player, a: number, i: item):
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
 		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
-		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 	else if {nw::players::%{_p}%} is less than ({_a} * {_value}):
 		send "&cYou do not have enough Net Worth to perform this action." to {_p}
 	else:
@@ -153,7 +160,7 @@ function addNWItems(p: player, a: number, i: item):
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
 		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
-		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 		# else:
 		# 	send "&cYou do not have enough empty inventory space."
 
@@ -167,7 +174,7 @@ function clearNWItems(p: player):
 	remove all {nw::items::ckelp} from {_p}'s inventory
 
 	send "&3Added &6%{_v}% &3to your Net Worth." to {_p}
-	send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%" to {_p}
+	send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 
 function networthGUI(p: player):
 	set {_gui} to chest inventory with 5 rows named "Convert Items"
@@ -210,13 +217,14 @@ on inventory click:
 	event-inventory is not player's inventory
 	# Important
 	if clicked slot is 31: # Paper - Withdraw All
+		set {_v} to getInventoryValue(player)
 		removeItems(player, the amount of dried kelp blocks in player's inventory, dried kelp block, no)
 		removeItems(player, the amount of sea pickles in player's inventory, sea pickle, no)
 		removeItems(player, the amount of {nw::items::ckelp} in player's inventory, {nw::items::ckelp}, no)
 		removeItems(player, the amount of {nw::items::credit} in player's inventory, {nw::items::credit}, no)
 		networthGUI(player)
-		send "&3Added &6%getInventoryValue(player)%&3 to your Net Worth."
-		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%"
+		send "&3Added &6%{_v}%&3 to your Net Worth."
+		send "&3Your Net Worth is now &6%{nw::players::%player%}%&3."
 	# Deposits
 	else if clicked slot is 10: # Kelp
 		if click type is left mouse button:
@@ -335,31 +343,43 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 
 ### RANKS ###
 function setRank(p: offline player, r: text):
-	set {_phrases::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
-	loop {_phrases::*}:
-		if {_r} contains loop-value:
-			
 	make console execute "/lp user %{_p}% parent set %{_r}%"
+	set {ranks::%{_p}%} to {_r}
 
 function removeRank(p: offline player):
+	set {_r} to {ranks::%{_p}%}
 	make console execute "/lp user %{_p}% parent set default"
+	set {ranks::%{_p}%} to "default"
 			
-command /setrank [<offline player>] <text>:
+command /setrank <offline player> <text>:
 	permission: skript.addranks
 	permission message: you dont have permission
 	trigger:
+		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+		loop {_moderated_ranks::*}:
+			if {_r} contains loop-value:
+				send "&cYou cannot set that player's rank."
+				stop
 		setRank(arg-1, arg-2)
+		send "&3Set the rank of &6%arg-1% &3to &6%arg-2%&3."
 		
-command /removerank [<offline player>]:
+command /removerank <offline player>:
 	permission: skript.removeranks
 	permission message: you dont have permission
 	trigger:
-		removeRank(arg-1)
+		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+		loop {_moderated_ranks::*}:
+			if {_r} contains loop-value:
+				send "&cYou cannot set that player's rank."
+				stop
+		setRank(arg-1, "default")
+		send "&3Removed the rank of &6%arg-1%&3."
 
 function ranksGuiMain(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
 
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
+	set slot 8 of {_gui} to barrier block named "&cClear Rank"
 	set slot 11 of {_gui} to netherite sword named "&cKill &3Ranks&r" with lore "&3Awarded to players with the required number of &cPlayer Kills&r"
 	enchant slot 11 of {_gui} with sharpness 10
 	set slot 13 of {_gui} to command block named "&eStaff &3Ranks&r" with lore "&3Obtainable by applying on our Discord."
@@ -372,51 +392,56 @@ function ranksGuiKills(p: player):
 	set {_gui} to chest inventory with 3 rows named "§cKills Ranks"
 	## SOME OF THESE COLOURS ARE PROBABLY RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::{_i}::req:}:
-		set slot 10 of {_gui} to wooden sword named "&31. &cMurderer&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::murderer::req:}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::murderer::req:} - {kill counter.%{_p}%.kills_total}%"
+	set slot 8 of {_gui} to barrier block named "&cClear Rank"
+	if {kills::players::%{_p}%} is less than {k-ranks::murderer::req}:
+		set slot 10 of {_gui} to wooden sword named "&31. &cMurderer&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::murderer::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::murderer::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 10 of {_gui} to wooden sword of sharpness 10 named "&31. &cMurderer&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::murderer::req:}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 10 of {_gui} to wooden sword of sharpness 10 named "&31. &cMurderer&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::murderer::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 	
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::genocidal-maniac::req:}:
-		set slot 11 of {_gui} to stone sword named "&32.&<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req:}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::genocidal-maniac::req:} - {kill counter.%{_p}%.kills_total}%"
+	if {kills::players::%{_p}%} is less than {k-ranks::genocidal-maniac::req}:
+		set slot 11 of {_gui} to stone sword named "&32.<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::genocidal-maniac::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 11 of {_gui} to stone sword of sharpness 10 named "&32.&<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 11 of {_gui} to stone sword of sharpness 10 named "&32.<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 	
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::sadistic::req}:
-		set slot 12 of {_gui} to gold sword named "&33. &r &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::sadistic::req} - {kill counter.%{_p}%.kills_total}%"
+	if {kills::players::%{_p}%} is less than {k-ranks::sadistic::req}:
+		set slot 12 of {_gui} to gold sword named "&33. &r &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::sadistic::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 12 of {_gui} to gold sword of sharpness 10 named "&33. &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 12 of {_gui} to gold sword of sharpness 10 named "&33. &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::demon::req}:
-		set slot 14 of {_gui} to iron sword named "&34.&<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::demon::req} - {kill counter.%{_p}%.kills_total}%"
+	if {kills::players::%{_p}%} is less than {k-ranks::demon::req}:
+		set slot 14 of {_gui} to iron sword named "&34.<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::demon::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 14 of {_gui} to iron sword of sharpness 10 named "&34.&<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 14 of {_gui} to iron sword of sharpness 10 named "&34.<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 	
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::demon::req}:
-		set slot 15 of {_gui} to diamond sword named "&35.&5 Reaper&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::reaper::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::reaper::req} - {kill counter.%{_p}%.kills_total}%"
+	if {kills::players::%{_p}%} is less than {k-ranks::demon::req}:
+		set slot 15 of {_gui} to diamond sword named "&35.&5 Reaper&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::reaper::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::reaper::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 15 of {_gui} to diamond sword of sharpness 10 named "&35.&5 Reaper&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::reaper::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 15 of {_gui} to diamond sword of sharpness 10 named "&35.&5 Reaper&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::reaper::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 
-	if {kill counter.%{_p}%.kills_total} is less than {k-ranks::blood-god::req}:
-		set slot 16 of {_gui} to netherite sword named "&36. &6Blood God&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::blood-god::req}% &3Kills" and "&b&l»&r &3Kills Left:&c%{k-ranks::blood-god::req} - {kill counter.%{_p}%.kills_total}%"
+	if {kills::players::%{_p}%} is less than {k-ranks::blood-god::req}:
+		set slot 16 of {_gui} to netherite sword named "&36. &6Blood God&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::blood-god::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::blood-god::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 16 of {_gui} to netherite sword of sharpness 10 named "&36. &6Blood God&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::blood-god::req}% &3Kills" and "&b&l»&r &9Click to Equip"
+		set slot 16 of {_gui} to netherite sword of sharpness 10 named "&36. &6Blood God&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::blood-god::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
 function ranksGuiNetworth(p: player):
-	set {_gui} to chest inventory with 3 rows named "§aNetworth Ranks"
+	set {_gui} to chest inventory with 3 rows named "§6Networth Ranks"
 	## SOME OF THESE COLOURS ARE PROBABLY RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
-	if {nw::players::%{_p}%} is less than {nw-ranks::aristocrat:req}:
-		set slot 11 of {_gui} to netherite sword named "&31. &3Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::aristocrat::req} - {nw::players::%{_p}%}%"
+	set slot 8 of {_gui} to barrier block named "&cClear Rank"
+	if {nw::players::%{_p}%} is less than {nw-ranks::aristocrat::req}:
+		set slot 11 of {_gui} to dried kelp named "&31. &3Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::aristocrat::req}% &3Net Worth" and " &b&l»&r &3Net Worth Left: &6%{nw-ranks::aristocrat::req} - {nw::players::%{_p}%}%"
 	else:
-	if {nw::players::%{_p}%} is less than {nw-ranks::huge-aristocrat:req}:
-		set slot 13 of {_gui} to netherite sword named "&33. &aHuge Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::huge-aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::huge-aristocrat::req} - {nw::players::%{_p}%}%"
+		set slot 11 of {_gui} to dried kelp of fortune 10 named "&31. &3Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::aristocrat::req}% &3Net Worth" and " &b&l»&r &9Click to Equip"
+	if {nw::players::%{_p}%} is less than {nw-ranks::huge-aristocrat::req}:
+		set slot 13 of {_gui} to dried kelp block named "&32. &aHuge Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::huge-aristocrat::req}% &3Net Worth" and " &b&l»&r &3Net Worth Left: &6%{nw-ranks::huge-aristocrat::req} - {nw::players::%{_p}%}%"
 	else:
-	if {nw::players::%{_p}%} is less than {nw-ranks::ultimate-aristocrat:req}:
-		set slot 15 of {_gui} to netherite sword named "&33. &5Ultimate Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::ultimate-aristocrat::req}% &3Net Worth" and "&b&l»&r &3Net Worth Left:&6%{nw-ranks::ultimate-aristocrat::req} - {nw::players::%{_p}%}%"
+		set slot 13 of {_gui} to dried kelp block of fortune 10 named "&32. &aHuge Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::huge-aristocrat::req}% &3Net Worth" and " &b&l»&r &9Click to Equip"
+	if {nw::players::%{_p}%} is less than {nw-ranks::ultimate-aristocrat::req}:
+		set slot 15 of {_gui} to sea pickle named "&33. &5Ultimate Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::ultimate-aristocrat::req}% &3Net Worth" and " &b&l»&r &3Net Worth Left: &6%{nw-ranks::ultimate-aristocrat::req} - {nw::players::%{_p}%}%"
 	else:
+		set slot 15 of {_gui} to sea pickle of fortune 10 named "&33. &5Ultimate Aristocrat&r" with lore " &b&l»&r &3Requirement: &6%{nw-ranks::ultimate-aristocrat::req}% &3Net Worth" and " &b&l»&r &9Click to Equip"
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
@@ -424,6 +449,7 @@ function ranksGuiAdmins(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eAdmin Ranks"
 	## IDK IF ANY OF THESE COLOURS ARE RIGHT
 	set slot (integers between 0 and 26) of {_gui} to blue stained glass pane named " "
+	set slot 8 of {_gui} to barrier block named "&cClear Rank"
 	set slot 10 of {_gui} to hopper named "&5Trainee Mod&r" with lore "&fRecently appointed mod. Has been a player for 4+ weeks"
 	set slot 11 of {_gui} to structure block named "&bTrial Mod&r" with lore "&fHas been a player for 2+ months. Trustworthy"
 	set slot 12 of {_gui} to command block named "&aMod&r" with lore "&fHas been a trial mod for 2+ months. Very Trustworthy."
@@ -433,11 +459,14 @@ function ranksGuiAdmins(p: player):
 	set slot 26 of {_gui} to feather named "&cBack&r"
 	open {_gui} to {_p}
 
-on inventory click:
+on inventory click: #TODO
 	if name of event-inventory is "§eRanks Menu":
 		cancel event
 		event-inventory is not player's inventory
-		if clicked slot is 11:
+		if clicked slot is 8:
+			removeRank(player)
+			send "&3Cleared your rank."
+		else if clicked slot is 11:
 			ranksGuiKills(player)
 		else if clicked slot is 13:
 			ranksGuiAdmins(player)
@@ -447,21 +476,74 @@ on inventory click:
 	else if name of event-inventory is "§cKills Ranks":
 		cancel event
 		event-inventory is not player's inventory
+		set {_k} to {kills::players::%player%}
 
-		if clicked slot is 10:
-			
+		if clicked slot is 8:
+			removeRank(player)
+			send "&3Cleared your rank."
+		else if clicked slot is 10: #murderer
+			if {_k} is more than or equal to {k-ranks::murderer::req}:
+				setRank(player, "murderer")
+				send "&3Set your rank to &cMurderer&3."
+		else if clicked slot is 11: # gm
+			if {_k} is more than or equal to {k-ranks::genocidal-maniac::req}:
+				setRank(player, "genocidal-maniac")
+				send "&3Set your rank to &cGenocidal Maniac&3."
+		else if clicked slot is 12: # sad
+			if {_k} is more than or equal to {k-ranks::sadistic::req}:
+				setRank(player, "sadistic")
+				send "&3Set your rank to &cSadistic&3."
+		else if clicked slot is 14: # demon
+			if {_k} is more than or equal to {k-ranks::demon::req}:
+				setRank(player, "demon")
+				send "&3Set your rank to &cDemon&3."
+		else if clicked slot is 15: # reaper
+			if {_k} is more than or equal to {k-ranks::reaper::req}:
+				setRank(player, "reaper")
+				send "&3Set your rank to &cReaper&3."
+		else if clicked slot is 16: # bg
+			if {_k} is more than or equal to {k-ranks::blood-god::req}:
+				setRank(player, "blood-god")
+				send "&3Set your rank to &cBlood God&3."
 
 		if clicked slot is 26:
 			ranksGuiMain(player)
+		else:
+			ranksGuiKills(player)
 
 	else if name of event-inventory is "§6Networth Ranks":
 		cancel event
 		event-inventory is not player's inventory
+
+		set {_nw} to {nw::players::%player%}
+
+		if clicked slot is 8:
+			removeRank(player)
+			send "&3Cleared your rank."
+		else if clicked slot is 11:
+			if {_nw} is more than or equal to {nw-ranks::aristocrat::req}:
+				setRank(player, "aristocrat")
+				send "&3Set your rank to &6Aristocrat&3."
+		else if clicked slot is 13:
+			if {_nw} is more than or equal to {nw-ranks::huge-aristocrat::req}:
+				setRank(player, "huge-aristocrat")
+				send "&3Set your rank to &6Huge Aristocrat&3."
+		else if clicked slot is 15:
+			if {_nw} is more than or equal to {nw-ranks::ultimate-aristocrat::req}:
+				setRank(player, "ultimate-aristocrat")
+				send "&3Set your rank to &6Ultimate Aristocrat&3."
+
 		if clicked slot is 26:
 			ranksGuiMain(player)
+		else:
+			ranksGuiNetworth(player)
 
 	else if name of event-inventory is "§eAdmin Ranks":
 		cancel event
 		event-inventory is not player's inventory
 		if clicked slot is 26:
 			ranksGuiMain(player)
+
+command /ranks:
+	trigger:
+		ranksGuiMain(player)
