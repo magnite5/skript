@@ -53,7 +53,7 @@ command /kills [<offline player>]:
 			else:
 				message "&cA console does not have a kill count."
 		else if player has permission "skript.getkills":
-			message "&b%arg-1% has &6%{kills::players::%arg-1%}%&r kills in total."
+			message "%arg-1% has &6%{kills::players::%arg-1%}%&r kills in total."
 		else:
 			message "&cYou do not have permission to view the kills of other players."
 
@@ -188,7 +188,7 @@ function networthGUI(p: player):
 	set slot 15 of {_gui} to dried kelp block named "&a&lWITHDRAW &r&3| &2Dried Kelp Block" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::kelp}%&3 for &6%{_max::kelp} * {@kelp_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@kelp_value}%&3 NW"
 	set slot 16 of {_gui} to sea pickle named "&a&lWITHDRAW &r&3| &3Sea Pickles" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::pickles}%&3 for &6%{_max::pickles} * {@pickle_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@pickle_value}%&3 NW"
 	set slot 33 of {_gui} to dried kelp block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::ckelp}%&3 for &6%{_max::ckelp} * {@kelp_value} * 4%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%4 * {@kelp_value}%&3 NW"
-	set slot 34 of {_gui} to amethyst block of mending 10 named "&a&lWITHDRAW &r&3| &2Compressed Kelp" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::credits}%&3 for &6%{_max::credits} * {@credit_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@credit_value}%&3 NW"
+	set slot 34 of {_gui} to amethyst block of mending 10 named "&a&lWITHDRAW &r&3| &6Credits" with lore " &b&l»&r &3Left Click: Withdraw &b&lMAX" and " &b└ &6%{_max::credits}%&3 for &6%{_max::credits} * {@credit_value}%&3 NW" and " " and " &b&l»&r &3Right Click: Withdraw &b&l1" and " &b└ &3For &6%1 * {@credit_value}%&3 NW"
 	
 	open {_gui} to {_p}
 
@@ -336,6 +336,7 @@ command /setrank <offline player> <text>:
 	permission: skript.addranks
 	permission message: you dont have permission
 	trigger:
+		set {_r} to {ranks::%{_p}%}
 		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
 		loop {_moderated_ranks::*}:
 			if {_r} contains loop-value:
@@ -348,6 +349,7 @@ command /removerank <offline player>:
 	permission: skript.removeranks
 	permission message: you dont have permission
 	trigger:
+		set {_r} to {ranks::%{_p}%}
 		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
 		loop {_moderated_ranks::*}:
 			if {_r} contains loop-value:
