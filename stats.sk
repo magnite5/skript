@@ -83,6 +83,18 @@ on join:
 		add {kill counter.%player%.kills_total} to {kills::players::%player%}
 		set {kill counter.%player%.kills_total} to 0
 		add player to {kills-updated::*}
+	if {ranks::%player%} is "ultimate-aristocrat" and {nw::players::%player%} is less than {nw-ranks::ultimate-aristocrat::req}:
+		removeRank(player)
+		send "&cYou did not meet the requirements for your previously equipped rank (Ultimate Aristocrat)." to player
+		send "&cUse /cv to get more net worth."
+	else if {ranks::%player%} is "huge-aristocrat" and {nw::players::%player%} is less than {nw-ranks::huge-aristocrat::req}:
+		removeRank(player)
+		send "&cYou did not meet the requirements for your previously equipped rank (Huge Aristocrat)." to player
+		send "&cUse /cv to get more net worth."
+	else if {ranks::%player%} is "aristocrat" and {nw::players::%player%} is less than {nw-ranks::aristocrat::req}:
+		removeRank(player)
+		send "&cYou did not meet the requirements for your previously equipped rank (Aristocrat)." to player
+		send "&cUse /cv to get more net worth."
 
 ### NETWORTH ###
 function getInventoryValue(p: player) :: number:
@@ -357,6 +369,8 @@ command /removerank <offline player>:
 				stop
 		setRank(arg-1, "default")
 		send "&3Removed the rank of &6%arg-1%&3."
+
+on join
 
 function ranksGuiMain(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
