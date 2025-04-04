@@ -78,23 +78,26 @@ command /checkkills:
 		loop all players:
 			send "The player &b%loop-player%&r has &6%{kills::players::%loop-player%}%&r kills in total." to player
 
-on join:
+on player join:
 	if {kills-updated::*} does not contain player:
 		add {kill counter.%player%.kills_total} to {kills::players::%player%}
 		set {kill counter.%player%.kills_total} to 0
 		add player to {kills-updated::*}
-	if {ranks::%player%} is "ultimate-aristocrat" and {nw::players::%player%} is less than {nw-ranks::ultimate-aristocrat::req}:
-		removeRank(player)
-		send "&cYou did not meet the requirements for your previously equipped rank (Ultimate Aristocrat)." to player
-		send "&cUse /cv to get more net worth."
-	else if {ranks::%player%} is "huge-aristocrat" and {nw::players::%player%} is less than {nw-ranks::huge-aristocrat::req}:
-		removeRank(player)
-		send "&cYou did not meet the requirements for your previously equipped rank (Huge Aristocrat)." to player
-		send "&cUse /cv to get more net worth."
-	else if {ranks::%player%} is "aristocrat" and {nw::players::%player%} is less than {nw-ranks::aristocrat::req}:
-		removeRank(player)
-		send "&cYou did not meet the requirements for your previously equipped rank (Aristocrat)." to player
-		send "&cUse /cv to get more net worth."
+	if {ranks::%player%} is "ultimate-aristocrat":
+		if {nw::players::%player%} is less than {nw-ranks::ultimate-aristocrat::req}:
+			removeRank(player)
+			send "&cYou did not meet the requirements for your previously equipped rank (Ultimate Aristocrat)." to player
+			send "&cUse /cv to get more net worth."
+	else if {ranks::%player%} is "huge-aristocrat":
+		if {nw::players::%player%} is less than {nw-ranks::huge-aristocrat::req}:
+			removeRank(player)
+			send "&cYou did not meet the requirements for your previously equipped rank (Huge Aristocrat)." to player
+			send "&cUse /cv to get more net worth."
+	else if {ranks::%player%} is "aristocrat":
+		if {nw::players::%player%} is less than {nw-ranks::aristocrat::req}:
+			removeRank(player)
+			send "&cYou did not meet the requirements for your previously equipped rank (Aristocrat)." to player
+			send "&cUse /cv to get more net worth."
 
 ### NETWORTH ###
 function getInventoryValue(p: player) :: number:
@@ -298,10 +301,10 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 				send " &b&l» &r&3Usage: &9/nw <operator> <target> <amount>"
 				send ""
 				send " &bPossible Operators:"
-				send " &b┌ ?&3 or&b query &6&l»&r&3 Returns the balance of the target."
-				send " &b├ +&3,&b add&3,&b sum&3 or&b plus &6&l»&r&3 Adds the specified value."
-				send " &b├ -&3,&b sub&3,&b diff&3 or&b minus &6&l»&r&3 Subtracts the specified value."
-				send " &b└ =&3,&b sub&3,&b diff&3 or&b minus &6&l»&r&3 Sets the balance of the target to the specified value."
+				send " &b┌ ?&3, &bget&3, or&b query &6&l»&r&3 Returns the balance of the target."
+				send " &b├ +&3,&b add&3,&b sum&3, or&b plus &6&l»&r&3 Adds the specified value."
+				send " &b├ -&3,&b sub&3,&b diff&3, or&b minus &6&l»&r&3 Subtracts the specified value."
+				send " &b└ =&3, or&b set&3 &6&l»&r&3 Sets the balance of the target to the specified value."
 				send ""
 				send " &b| &3Admin &6Net Worth&3 Help&b |&3 ----------------"
 		else if arg-1 is "gui":
@@ -337,11 +340,13 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 ### RANKS ###
 function setRank(p: offline player, r: text):
 	make console execute "/lp user %{_p}% parent set %{_r}%"
+	send "[stats.sk] Updated rank of %{_p}% to %{_r}%." to the console
 	set {ranks::%{_p}%} to {_r}
 
 function removeRank(p: offline player):
 	set {_r} to {ranks::%{_p}%}
 	make console execute "/lp user %{_p}% parent set default"
+	send "[stats.sk] Removed rank of %{_p}%." to the console
 	set {ranks::%{_p}%} to "default"
 			
 command /setrank <offline player> <text>:
@@ -349,7 +354,7 @@ command /setrank <offline player> <text>:
 	permission message: you dont have permission
 	trigger:
 		set {_r} to {ranks::%{_p}%}
-		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder"
 		loop {_moderated_ranks::*}:
 			if {_r} contains loop-value:
 				send "&cYou cannot set that player's rank."
@@ -362,15 +367,13 @@ command /removerank <offline player>:
 	permission message: you dont have permission
 	trigger:
 		set {_r} to {ranks::%{_p}%}
-		set {_moderated_ranks::*} to "owner", "co-owner", "head-mod", "senior-mod", "mod", "trialmod", "trainee-mod", "op", "trial-builder", "builder", "head-builder"
+		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder"
 		loop {_moderated_ranks::*}:
 			if {_r} contains loop-value:
 				send "&cYou cannot set that player's rank."
 				stop
 		setRank(arg-1, "default")
 		send "&3Removed the rank of &6%arg-1%&3."
-
-on join
 
 function ranksGuiMain(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
