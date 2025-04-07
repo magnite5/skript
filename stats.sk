@@ -73,27 +73,29 @@ command /modifykills <offline player> <text> <number>:
 
 command /checkkills:
 	permission: skript.checkkills
-	permission message: you dont have permission
+	permission message: &cInsufficient Permissions.
 	trigger:
 		loop all players:
 			send "The player &b%loop-player%&r has &6%{kills::players::%loop-player%}%&r kills in total." to player
 
 on player join:
+	set {_r} to (the luckperms group of player)
 	if {kills-updated::*} does not contain player:
 		add {kill counter.%player%.kills_total} to {kills::players::%player%}
 		set {kill counter.%player%.kills_total} to 0
 		add player to {kills-updated::*}
-	if {ranks::%player%} is "ultimate-aristocrat":
+		
+	if {_r} is "ultimate-aristocrat":
 		if {nw::players::%player%} is less than {nw-ranks::ultimate-aristocrat::req}:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Ultimate Aristocrat)." to player
 			send "&cUse /cv to get more net worth."
-	else if {ranks::%player%} is "huge-aristocrat":
+	else if {_r} is "huge-aristocrat":
 		if {nw::players::%player%} is less than {nw-ranks::huge-aristocrat::req}:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Huge Aristocrat)." to player
 			send "&cUse /cv to get more net worth."
-	else if {ranks::%player%} is "aristocrat":
+	else if {_r} is "aristocrat":
 		if {nw::players::%player%} is less than {nw-ranks::aristocrat::req}:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Aristocrat)." to player
@@ -341,39 +343,48 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 function setRank(p: offline player, r: text):
 	make console execute "/lp user %{_p}% parent set %{_r}%"
 	send "[stats.sk] Updated rank of %{_p}% to %{_r}%." to the console
-	set {ranks::%{_p}%} to {_r}
 
 function removeRank(p: offline player):
-	set {_r} to {ranks::%{_p}%}
 	make console execute "/lp user %{_p}% parent set default"
 	send "[stats.sk] Removed rank of %{_p}%." to the console
-	set {ranks::%{_p}%} to "default"
-			
-command /setrank <offline player> <text>:
-	permission: skript.addranks
-	permission message: you dont have permission
+
+command /rank <text> <offline player> [<text>]: #TODO: Help Menu
 	trigger:
-		set {_r} to {ranks::%{_p}%}
-		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder"
-		loop {_moderated_ranks::*}:
-			if {_r} contains loop-value:
-				send "&cYou cannot set that player's rank."
-				stop
-		setRank(arg-1, arg-2)
-		send "&3Set the rank of &6%arg-1% &3to &6%arg-2%&3."
-		
-command /removerank <offline player>:
-	permission: skript.removeranks
-	permission message: you dont have permission
-	trigger:
-		set {_r} to {ranks::%{_p}%}
-		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder"
-		loop {_moderated_ranks::*}:
-			if {_r} contains loop-value:
-				send "&cYou cannot set that player's rank."
-				stop
-		setRank(arg-1, "default")
-		send "&3Removed the rank of &6%arg-1%&3."
+		set {_t} to arg-2 # target player
+		set {_tr} to arg-3 # target rank
+		set {_t.cr} to (the luckperms group of {_t}) # target player's current rank
+		set {_p.cr} to (the luckperms group of {_p}) # player (user)'s current rank
+		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder" and "admin" and "head-admin"
+
+		if arg-1 is "get" or "query" or "?":
+			if player has permission "skript.getrank":
+				send "&6%{_t}%&3's rank is &6%{_t.cr}%&3, with the prefix &6'&r%the luckperms prefix of {_t}%&6'&3."
+			else:
+				send "&cInsufficient Permissions."
+		else if arg-1 is "set" or "change" or "=" or "==":
+			if player has permission "skript.addranks":
+				loop {_moderated_ranks::*}:
+					if {_t.cr} contains loop-value: # Prevents staff ranks from being overriden
+						send "&cYou cannot set &6%{_t}%&c's rank."
+						stop
+					if {_tr} contains loop-value: # Prevents staff ranks from being given
+						send "&cYou cannot set &6%{_t}%&c's rank to that value."
+						stop
+				setRank({_t}, {_tr})
+				send "&3Successfully set the rank of &6%{_t}%&3 to &6%{_tr}%&3."
+			else:
+				send "&cInsufficient Permissions."
+		else if arg-1 is "remove" or "delete" or "x":
+			if player has permission "skript.removeranks":
+				loop {_moderated_ranks::*}:
+					if {_r} contains loop-value: # Prevents staff ranks from being overriden
+						send "&cYou cannot set &6%{_t}%&c's rank."
+						stop
+				setRank({_t}, "default")
+				send "&3Successfully removed the rank of &6%{_t}%&3."
+			else:
+				send "&cInsufficient Permissions."
+
 
 function ranksGuiMain(p: player):
 	set {_gui} to chest inventory with 3 rows named "§eRanks Menu"
@@ -404,9 +415,9 @@ function ranksGuiKills(p: player):
 		set slot 11 of {_gui} to stone sword of sharpness 10 named "&32.<#983040> Genocidal Maniac &r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::genocidal-maniac::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 	
 	if {kills::players::%{_p}%} is less than {k-ranks::sadistic::req}:
-		set slot 12 of {_gui} to gold sword named "&33. &r &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::sadistic::req} - {kills::players::%{_p}%}%"
+		set slot 12 of {_gui} to golden sword named "&33. &r &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::sadistic::req} - {kills::players::%{_p}%}%"
 	else:
-		set slot 12 of {_gui} to gold sword of sharpness 10 named "&33. &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &9Click to Equip"
+		set slot 12 of {_gui} to golden sword of sharpness 10 named "&33. &dSadistic&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::sadistic::req}% &3Kills" and " &b&l»&r &9Click to Equip"
 
 	if {kills::players::%{_p}%} is less than {k-ranks::demon::req}:
 		set slot 14 of {_gui} to iron sword named "&34.<#610000> Demon&r" with lore " &b&l»&r &3Requirement: &c%{k-ranks::demon::req}% &3Kills" and " &b&l»&r &3Kills Left: &c%{k-ranks::demon::req} - {kills::players::%{_p}%}%"
