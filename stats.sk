@@ -133,7 +133,15 @@ function removeItems(p: player, a: number, i: item, t: boolean):
 			send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 
 function addNWItems(p: player, a: number, i: item):
-	set {_slots} to ceil({_a} / 64)
+	# Determines the amount of usable inventory space
+	set {_usable_space} to 0
+	set {_empty_slots} to 36
+	loop items in {_p}'s inventory:
+		remove 1 from {_empty_slots}
+		if (loop-item is brick):
+			add (64 - amount of loop-slot) to {_usable_space}
+	add ({_empty_slots} * 64) to {_usable_space}
+
 	if {_i} is {nw::items::ckelp}:
 		set {_value} to ({@kelp_value} * 4)
 	else if {_i} is {nw::items::credit}:
@@ -145,8 +153,11 @@ function addNWItems(p: player, a: number, i: item):
 	else:
 		send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
 		stop
-	if {_a} is 0:
-		set {_a} to floor({nw::players::%{_p}%} / ({_value}))
+	if {_a} is 0: # Withdraw the max of that item
+		set {_a} to floor({nw::players::%{_p}%} / ({_value})) # The max of the item based on the players nw
+		if {_usable_space} <= {_a}:
+			send "&cYou do not have enough empty space in your inventory." to {_p}
+			stop
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
 		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
@@ -154,13 +165,13 @@ function addNWItems(p: player, a: number, i: item):
 	else if {nw::players::%{_p}%} is less than ({_a} * {_value}):
 		send "&cYou do not have enough Net Worth to perform this action." to {_p}
 	else:
-		# if there are at least {_slots} slots that are empty in the player's inventory:
+		if {_usable_space} <= {_a}:
+			send "&cYou do not have enough empty space in your inventory." to {_p}
+			stop
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
 		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
 		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
-		# else:
-		# 	send "&cYou do not have enough empty inventory space."
 
 function clearNWItems(p: player):
 	set {_v} to getInventoryValue({_p})
@@ -348,7 +359,7 @@ function removeRank(p: offline player):
 	make console execute "/lp user %{_p}% parent set default"
 	send "[stats.sk] Removed rank of %{_p}%." to the console
 
-command /rank <text> <offline player> [<text>]: #TODO: Help Menu
+command /rank <text> <offline player> [<text>]:
 	trigger:
 		set {_t} to arg-2 # target player
 		set {_tr} to arg-3 # target rank
@@ -371,6 +382,7 @@ command /rank <text> <offline player> [<text>]: #TODO: Help Menu
 						send "&cYou cannot set &6%{_t}%&c's rank to that value."
 						stop
 				setRank({_t}, {_tr})
+				wait 1 second
 				send "&3Successfully set the rank of &6%{_t}%&3 to &6%{_tr}%&3."
 			else:
 				send "&cInsufficient Permissions."
