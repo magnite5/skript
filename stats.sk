@@ -20,6 +20,9 @@ options:
 	pickle_value: 2048
 	credit_value: 4096
 
+function logc(msg: text): # Basic console logging
+	send "[stats.sk] %{_msg}%" to console
+
 command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS FIRST INSTATED
 	permission: skript.nwadmin
 	permission message: &cInsufficient Permissions.
@@ -28,10 +31,12 @@ command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS
 		if arg-1 contains "cre":
 			set {nw::items::credit} to player's tool
 			send "&3Defined &6Credit Item&3 as &3%{nw::items::credit}%"
+			logc("Defined credit item as %{nw::items::credit}%")
 			stop
 		else if arg-1 contains "ckelp" or "compressed kelp" or "comp kelp":
 			set {nw::items::ckelp} to player's tool
 			send "&3Defined &6Compressed Kelp Item&3 as &3%{nw::items::ckelp}%"
+			logc("Defined compressed kelp item as %{nw::items::ckelp}%")
 			stop
 		# else if arg-1 is "kelp":
 		# 	set {nw::items::kelp} to player's tool
@@ -68,8 +73,10 @@ command /modifykills <offline player> <text> <number>:
 	trigger:
 		if arg-2 contains "add" or "+" or "sum":
 			add arg-3 to {kills::players::%arg-1%}
+			logc("%player%: + %arg-3% kills to %arg-1%. Now %{kills::players::%arg-1%}%")
 		else if arg-2 contains "subtract" or "sub" or "minus" or "-" or "difference" or "diff":
 			subtract arg-3 from {kills::players::%arg-1%}
+			logc("%player%: - %arg-3% kills to %arg-1%. Now %{kills::players::%arg-1%}%")
 		else:
 			send "&cOne of your arguments is invalid. Please try again."
 		send "The player &b%arg-1%&r now has &6%{kills::players::%arg-1%}%&r kills total" to player
@@ -93,16 +100,19 @@ on player join:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Ultimate Aristocrat)." to player
 			send "&cUse /cv to get more net worth."
+			logc("Removed ult-aristocrat from %player%")
 	else if {_r} is "huge-aristocrat":
 		if {nw::players::%player%} is less than {nw-ranks::huge-aristocrat::req}:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Huge Aristocrat)." to player
 			send "&cUse /cv to get more net worth."
+			logc("Removed huge-aristocrat from %player%")
 	else if {_r} is "aristocrat":
 		if {nw::players::%player%} is less than {nw-ranks::aristocrat::req}:
 			removeRank(player)
 			send "&cYou did not meet the requirements for your previously equipped rank (Aristocrat)." to player
 			send "&cUse /cv to get more net worth."
+			logc("Removed ult-aristocrat from %player%")
 
 ### NETWORTH ###
 function getInventoryValue(p: player) :: number:
@@ -131,6 +141,7 @@ function removeItems(p: player, a: number, i: item, t: boolean):
 		else:
 			send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
 		add {_nw} to {nw::players::%{_p}%}
+		logc("Removed %{_a}% of %{_i}% from %{_p}% for %{_nw}% nw. Now %{nw::players::%{_p}%}%")
 		if {_t} is true:
 			if {_a} is 0:
 				send " &c&l» &r&3You do not have any of this item." to {_p}
@@ -176,20 +187,21 @@ function addNWItems(p: player, a: number, i: item):
 			send "&cYou do not have enough inventory space to complete the full transaction." to {_p}
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
+		logc("Added %{_a}% of %{_i}% to %{_p}% for %{_a} * {_value}% nw. Now %{nw::players::%{_p}%}%")
 		send " &b&l» &r&3+ &9%{_a}% &3Items &b; &3- &6%{_a} * {_value}% &3NW &b; &3New balance: &6%{nw::players::%{_p}%}%&b." to {_p}
 
+# unused
+# function clearNWItems(p: player):
+# 	set {_v} to getInventoryValue({_p})
+# 	add {_v} to {nw::players::%{_p}%}
 
-function clearNWItems(p: player):
-	set {_v} to getInventoryValue({_p})
-	add {_v} to {nw::players::%{_p}%}
+# 	remove all dried kelp blocks from {_p}'s inventory
+# 	remove all sea pickles from {_p}'s inventory
+# 	remove all {nw::items::credit} from {_p}'s inventory
+# 	remove all {nw::items::ckelp} from {_p}'s inventory
 
-	remove all dried kelp blocks from {_p}'s inventory
-	remove all sea pickles from {_p}'s inventory
-	remove all {nw::items::credit} from {_p}'s inventory
-	remove all {nw::items::ckelp} from {_p}'s inventory
-
-	send "&3Added &6%{_v}% &3to your Net Worth." to {_p}
-	send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
+# 	send "&3Added &6%{_v}% &3to your Net Worth." to {_p}
+# 	send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 
 function networthGUI(p: player):
 	set {_gui} to chest inventory with 5 rows named "Convert Items"
@@ -242,6 +254,7 @@ on inventory click:
 			set {_k} to (the amount of dried kelp blocks in player's inventory) - {_ck}
 			set {_p} to the amount of sea pickles in player's inventory
 			set {_c} to the amount of {nw::items::credit} in player's inventory
+			logc("Depositing all;")
 			removeItems(player, {_ck}, {nw::items::ckelp}, no) # first to prevent confusion between k and ck
 			removeItems(player, {_k}, dried kelp block, no)
 			removeItems(player, {_p}, sea pickle, no)
@@ -347,19 +360,25 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 			if player has permission "skript.nwadmin":
 				if arg-1 is "get" or "query" or "?":
 					send "&3Player &b%arg-2%&3 has &6%{nw::players::%arg-2%}%&3 Net Worth."
+
 				else if arg-1 is "add" or "+" or "sum" or "plus":
 					send "&3Added &6%arg-3% &3NW to the balance of &b%arg-2%&3."
 					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
 					add arg-3 to {nw::players::%arg-2%}
 					send "&3Their new balance: &6%{nw::players::%arg-2%}%&3."
+					logc("%player%: + %arg-3% nw to %arg-2%. Now %{nw::players::%arg-2%}%")
+
 				else if arg-1 is "minus" or "-" or "difference" or "diff" or "remove" or "subtract" or "sub":
 					send "&3Removed &6%arg-3% &3NW from the balance of &b%arg-2%&3."
 					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
 					remove arg-3 from {nw::players::%arg-2%}
 					send "&3Their new balance: &6%{nw::players::%arg-2%}%&3."
+					logc("%player%: - %arg-3% nw from %arg-2%. Now %{nw::players::%arg-2%}%")
+
 				else if arg-1 is "set" or "=":
 					send "&3Set the balance of &b%arg-2%&3 to &6%arg-3%&3."
 					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
+					logc("%player%: Set nw of %arg-2% to %arg-3%. Prev. {nw::players::%arg-2%}")
 					set {nw::players::%arg-2%} to arg-3
 				else:
 					send "&cUnsupported Operator."
@@ -384,7 +403,7 @@ command /rank <text> <offline player> [<text>]:
 		set {_t} to arg-2 # target player
 		set {_tr} to arg-3 # target rank
 		set {_t.cr} to (the luckperms group of {_t}) # target player's current rank
-		set {_p.cr} to (the luckperms group of {_p}) # player (user)'s current rank
+		set {_p.cr} to (the luckperms group of player) # player (user)'s current rank
 		set {_moderated_ranks::*} to "owner" and "co-owner" and "head-mod" and "senior-mod" and "mod" and "trialmod" and "trainee-mod" and "op" and "trial-builder" and "builder" and "head-builder" and "admin" and "head-admin"
 
 		if arg-1 is "get" or "query" or "?":
@@ -416,6 +435,7 @@ command /rank <text> <offline player> [<text>]:
 				send "&3Successfully removed the rank of &6%{_t}%&3."
 			else:
 				send "&cInsufficient Permissions."
+				send "&cUse &b/ranks &cfor a list of ranks."
 
 
 function ranksGuiMain(p: player):
