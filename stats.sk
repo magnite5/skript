@@ -23,7 +23,7 @@ options:
 command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS FIRST INSTATED
 	permission: skript.nwadmin
 	permission message: &cInsufficient Permissions.
-	usage: /define_nw_item <credit | ckelp> while holding the item
+	usage: /define_nw_item <credit | ckelp | kelp> while holding the item
 	trigger:
 		if arg-1 contains "cre":
 			set {nw::items::credit} to player's tool
@@ -33,6 +33,9 @@ command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS
 			set {nw::items::ckelp} to player's tool
 			send "&3Defined &6Compressed Kelp Item&3 as &3%{nw::items::ckelp}%"
 			stop
+		# else if arg-1 is "kelp":
+		# 	set {nw::items::kelp} to player's tool
+		# 	send "&3Defined &6Kelp Item&3 as &3%{nw::items::kelp}%"
 		send "&cThat item is not supported."
 
 
@@ -114,7 +117,7 @@ function getInventoryValue(p: player) :: number:
 function removeItems(p: player, a: number, i: item, t: boolean):
 	set {_a_inv} to the amount of {_i} in {_p}'s inventory
 	if {_a_inv} is less than {_a}:
-		send "&cYou do not have enough of this item." to {_p}
+		send " &c&l» &r&3You do not have enough of this item." to {_p}
 	else:
 		remove {_a} of {_i} from {_p}'s inventory
 		if {_i} is {nw::items::ckelp}:
@@ -129,8 +132,10 @@ function removeItems(p: player, a: number, i: item, t: boolean):
 			send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
 		add {_nw} to {nw::players::%{_p}%}
 		if {_t} is true:
-			send "&3Added &6%{_nw}% &3to your Net Worth." to {_p}
-			send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
+			if {_a} is 0:
+				send " &c&l» &r&3You do not have any of this item." to {_p}
+			else:
+				send " &b&l» &r&3+ &6%{_nw}% &3NW &b; &3New balance: &6%{nw::players::%{_p}%}%&b." to {_p}
 
 function addNWItems(p: player, a: number, i: item):
 	# Determines the amount of usable inventory space
@@ -171,8 +176,8 @@ function addNWItems(p: player, a: number, i: item):
 			send "&cYou do not have enough inventory space to complete the full transaction." to {_p}
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
-		send "&3Added&9 %{_a}%&3 items to your inventory, costing of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
-		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
+		send " &b&l» &r&3+ &9%{_a}% &3Items &b; &3- &6%{_a} * {_value}% &3NW &b; &3New balance: &6%{nw::players::%{_p}%}%&b." to {_p}
+
 
 function clearNWItems(p: player):
 	set {_v} to getInventoryValue({_p})
@@ -228,13 +233,23 @@ on inventory click:
 	# Important
 	if clicked slot is 31: # Paper - Withdraw All
 		set {_v} to getInventoryValue(player)
-		removeItems(player, the amount of dried kelp blocks in player's inventory, dried kelp block, no)
-		removeItems(player, the amount of sea pickles in player's inventory, sea pickle, no)
-		removeItems(player, the amount of {nw::items::ckelp} in player's inventory, {nw::items::ckelp}, no)
-		removeItems(player, the amount of {nw::items::credit} in player's inventory, {nw::items::credit}, no)
-		networthGUI(player)
-		send "&3Added &6%{_v}%&3 to your Net Worth."
-		send "&3Your Net Worth is now &6%{nw::players::%player%}%&3."
+
+		if {_v} = 0:
+			networthGUI(player)
+			send " &c&l» &r&3The value of your inventory is 0&c."
+		else:
+			set {_ck} to the amount of {nw::items::ckelp} in player's inventory # first to prevent confusion between k and ck
+			set {_k} to (the amount of dried kelp blocks in player's inventory) - {_ck}
+			set {_p} to the amount of sea pickles in player's inventory
+			set {_c} to the amount of {nw::items::credit} in player's inventory
+			removeItems(player, {_ck}, {nw::items::ckelp}, no) # first to prevent confusion between k and ck
+			removeItems(player, {_k}, dried kelp block, no)
+			removeItems(player, {_p}, sea pickle, no)
+			removeItems(player, {_c}, {nw::items::credit}, no)
+			networthGUI(player)
+			send " &b&l» &r&3+ &6%{_v}% &3NW &b; &3- &9%{_k} + {_p} + {_ck} +{_c}% &3Items &b; &3New balance: &6%{nw::players::%player%}%&b." # ck is already counted in c
+
+
 	# Deposits
 	else if clicked slot is 10: # Kelp
 		if click type is left mouse button:
