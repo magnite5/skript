@@ -396,7 +396,7 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 						send "  &c&l»&r &3You do not have enough net worth to complete this transaction."
 						stop
 					send "  &b&l»&r &3You are about to send &6%arg-3%&3 nw to &b%arg-2%&3. Your balance will be &6%{nw::players::%player%} - arg-3%&3 after the transaction."
-					send formatted "<tooltip:Click here!><cmd:/nw cs %arg-2% %arg-3%>  &b&l»&r &bClick here to confirm."
+					send formatted "<tooltip:Click here!><cmd:/nw cs %arg-2% %arg-3%>  &b&l» &bClick here to confirm."
 
 				else if arg-1 is "csend" or "confirmsend" or "cs":
 					remove arg-3 from {nw::players::%player%}
