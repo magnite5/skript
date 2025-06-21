@@ -247,7 +247,11 @@ on inventory click:
 			removeItems(player, {_p}, sea pickle, no)
 			removeItems(player, {_c}, {nw::items::credit}, no)
 			networthGUI(player)
-			send " &b&l» &r&3+ &6%{_v}% &3NW &b; &3- &9%{_k} + {_p} + {_ck} +{_c}% &3Items &b; &3New balance: &6%{nw::players::%player%}%&b." # ck is already counted in c
+			set {_t} to {_k} + {_p} + {_ck} + {_c}
+			if {_t} = 1:
+				send " &b&l» &r&3+ &6%{_v}% &3NW &b; &3- &9%{_t}% &3Item &b; &3New balance: &6%{nw::players::%player%}%&b."
+			else:
+				send " &b&l» &r&3+ &6%{_v}% &3NW &b; &3- &9%{_t}% &3Items &b; &3New balance: &6%{nw::players::%player%}%&b."
 
 
 	# Deposits
