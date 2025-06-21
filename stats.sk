@@ -153,7 +153,6 @@ function addNWItems(p: player, a: number, i: item):
 		set {_value} to {@pickle_value}
 	else:
 		send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
-		close {_p}'s inventory view
 		stop
 
 	# Max Withdrawals
@@ -164,13 +163,15 @@ function addNWItems(p: player, a: number, i: item):
 	if {nw::players::%{_p}%} is less than ({_a} * {_value}):
 		send "&cYou do not have enough Net Worth to perform this action." to {_p}
 	else:
-		if {_usable_space} < {_a}:
+		if {_usable_space} is 0:
 			send "&cInsufficient inventory space." to {_p}
-			close {_p}'s inventory view
 			stop
+		if {_usable_space} < {_a}:
+			set {_a} to {_usable_space} # If player has insufficient space, give the max possible.
+			send "&cYou do not have enough inventory space to complete the full transaction." to {_p}
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
-		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
+		send "&3Added&9 %{_a}%&3 items to your inventory, costing of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
 		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
 
 function clearNWItems(p: player):
