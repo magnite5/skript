@@ -142,6 +142,7 @@ function addNWItems(p: player, a: number, i: item):
 			add (64 - amount of loop-slot) to {_usable_space}
 	add ({_empty_slots} * 64) to {_usable_space}
 
+	# Determine the value of the item
 	if {_i} is {nw::items::ckelp}:
 		set {_value} to ({@kelp_value} * 4)
 	else if {_i} is {nw::items::credit}:
@@ -152,21 +153,20 @@ function addNWItems(p: player, a: number, i: item):
 		set {_value} to {@pickle_value}
 	else:
 		send "&cInvalid Item. If you get this error, please report it to a staff member." to {_p}
+		close {_p}'s inventory view
 		stop
-	if {_a} is 0: # Withdraw the max of that item
-		set {_a} to floor({nw::players::%{_p}%} / ({_value})) # The max of the item based on the players nw
-		if {_usable_space} <= {_a}:
-			send "&cYou do not have enough empty space in your inventory." to {_p}
-			stop
-		remove ({_a} * {_value}) from {nw::players::%{_p}%}
-		give {_p} {_a} of {_i}
-		send "&3Added&9 %{_a}%&3 items to your inventory, at the cost of&6 %{_a} * {_value}%&3 Net Worth." to {_p}
-		send "&3Your Net Worth is now &6%{nw::players::%{_p}%}%&3." to {_p}
-	else if {nw::players::%{_p}%} is less than ({_a} * {_value}):
+
+	# Max Withdrawals
+	if {_a} is 0:
+		set {_a} to floor({nw::players::%{_p}%} / ({_value}))
+
+	# Complete the transaction
+	if {nw::players::%{_p}%} is less than ({_a} * {_value}):
 		send "&cYou do not have enough Net Worth to perform this action." to {_p}
 	else:
-		if {_usable_space} <= {_a}:
-			send "&cYou do not have enough empty space in your inventory." to {_p}
+		if {_usable_space} < {_a}:
+			send "&cInsufficient inventory space." to {_p}
+			close {_p}'s inventory view
 			stop
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
