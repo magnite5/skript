@@ -20,8 +20,11 @@ options:
 	pickle_value: 2048
 	credit_value: 4096
 
+	do-logging: false # Whether or not to log nw, rank and kill changes. Default: true
+
 function logc(msg: text): # Basic console logging
-	send "[stats.sk] %{_msg}%" to console
+	if {@do-logging} is true:
+		send "[stats.sk] %{_msg}%" to console
 
 command /define_nw_item <text>: # ONLY NEEDS TO BE USED ONCE, WHEN THE SKRIPT IS FIRST INSTATED
 	permission: skript.nwadmin
@@ -187,7 +190,7 @@ function addNWItems(p: player, a: number, i: item):
 			send "&cYou do not have enough inventory space to complete the full transaction." to {_p}
 		remove ({_a} * {_value}) from {nw::players::%{_p}%}
 		give {_p} {_a} of {_i}
-		logc("Added %{_a}% of %{_i}% to %{_p}% for %{_a} * {_value}% nw. Now %{nw::players::%{_p}%}%")
+		logc("Gave %{_a}% of %{_i}% to %{_p}% for %{_a} * {_value}% nw. Now %{nw::players::%{_p}%}%")
 		send " &b&l» &r&3+ &9%{_a}% &3Items &b; &3- &6%{_a} * {_value}% &3NW &b; &3New balance: &6%{nw::players::%{_p}%}%&b." to {_p}
 
 # unused
@@ -378,7 +381,7 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 				else if arg-1 is "set" or "=":
 					send "&3Set the balance of &b%arg-2%&3 to &6%arg-3%&3."
 					send "&3Their old balance: &6%{nw::players::%arg-2%}%&3."
-					logc("%player%: Set nw of %arg-2% to %arg-3%. Prev. {nw::players::%arg-2%}")
+					logc("%player%: Set nw of %arg-2% to %arg-3%. Prev. %{nw::players::%arg-2%}%")
 					set {nw::players::%arg-2%} to arg-3
 				else:
 					send "&cUnsupported Operator."
@@ -392,11 +395,11 @@ command /nw [<text>] [<offline player>] [<number>]: # operator, amount, target
 ### RANKS ###
 function setRank(p: offline player, r: text):
 	make console execute "/lp user %{_p}% parent set %{_r}%"
-	send "[stats.sk] Updated rank of %{_p}% to %{_r}%." to the console
+	logc("Updated rank of %{_p}% to %{_r}%.")
 
 function removeRank(p: offline player):
 	make console execute "/lp user %{_p}% parent set default"
-	send "[stats.sk] Removed rank of %{_p}%." to the console
+	logc("Removed rank of %{_p}%.")
 
 command /rank <text> <offline player> [<text>]:
 	trigger:
