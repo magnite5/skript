@@ -1,0 +1,50 @@
+command /ectoggle <text>:
+	usage: /ectoggle <thorns | blast_protection>
+	trigger:
+		set {_allowed_enchants::*} to "thorns" and "blast_protection"
+		loop {_allowed_enchants::*}:
+			if arg-1 in lowercase is loop-value:
+				set {_can_proceed} to true
+		if {_can_proceed} is not set:
+			send "&cThe specified enchantment is not supported."
+			stop
+
+		set {_text} to arg-1
+		replace all "_" with " " in {_text}
+
+		# Enchant -> Lore
+		if player's tool is enchanted with "%{_text}%" parsed as enchantment type:
+			if {_text} is "thorns":
+				set {_enchant} to thorns
+			else if {_text} is "blast protection":
+				set {_enchant} to blast protection
+
+			set {_elevel} to level of {_enchant} of player's tool
+
+			add "<#ad6252>%{_text} in strict proper case% %{_elevel}%" to lore of tool
+			remove {_enchant} from player's tool's enchantments
+			send "&3Disabled the &5%{_text} in strict proper case% &3enchantment"
+		else:
+			# Lore -> Enchant
+			if lore of player's tool is set:
+				set {_index} to 0
+				loop lore of player's tool:
+					add 1 to {_index}
+					if loop-value contains {_text}:
+						set {_line} to unformatted loop-value # text value of line
+						set {_line_number} to {_index}
+
+				if {_line} is set:
+					# For when enchant name is more than one word (I.E. blast protection)
+					set {_line_parts::*} to "%{_line}%" split at " " # 1 is enchant, 2 is value
+					set {_size} to size of {_line_parts::*}
+
+					set {_level} to last element of {_line_parts::*}
+					delete {_line_parts::%{_size}%} # deletes last part (level)
+					set {_name} to (join {_line_parts::*} with " ")
+					
+					enchant player's tool with "%{_name}% %{_level} parsed as number%" parsed as enchantment type
+					clear line {_line_number} of lore of tool
+					send "&3Re-Enabled the &5%{_text} in strict proper case% &3enchantment"
+			else:
+				send "&cThis item does not have the desired enchantment, disabled or otherwise."

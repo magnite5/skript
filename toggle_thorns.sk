@@ -1,8 +1,10 @@
+# This skript is no longer useful, but for players who have disabled thorns using it, you may now only re-enable thorns.
+
 command /thorns [<text>]:
 	trigger:
 		if arg-1 contains "confirm" or "c":
 			if player's tool is enchanted with thorns:
-				remove thorns from tool's enchantments
+				send "Use /ectoggle to disable thorns."
 			else if player's tool is enchanted with protection 100:
 				enchant player's tool with thorns 4
 			else if player's tool is enchanted with protection 10:
